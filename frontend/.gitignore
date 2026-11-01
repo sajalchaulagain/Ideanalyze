@@ -1,0 +1,25 @@
+# Security & Environment Variables
+.env
+.env.*
+!.env.example
+*.env
+
+# Dependencies & Build
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Logs & Cache
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & OS Files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db

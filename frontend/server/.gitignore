@@ -1,0 +1,15 @@
+# Security & Environment Variables
+.env
+.env.*
+!.env.example
+*.env
+
+# Dependencies & Logs
+node_modules/
+*.log
+npm-debug.log*
+
+# OS & IDE Files
+.DS_Store
+.vscode/
+.idea/
