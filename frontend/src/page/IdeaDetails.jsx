@@ -55,7 +55,7 @@ export default function IdeaDetails() {
     try {
       await editIdea(id, { title: draft.title.trim(), description: draft.description.trim() });
       setIsEditing(false);
-    } catch (err) {
+    } catch {
       setError("Could not save changes. Please try again.");
     }
   };
@@ -64,7 +64,7 @@ export default function IdeaDetails() {
     try {
       await removeIdea(id);
       navigate("/dashboard");
-    } catch (err) {
+    } catch {
       setError("Could not delete the idea. Please try again.");
     }
   };
@@ -80,7 +80,7 @@ export default function IdeaDetails() {
         targetAudience: idea.targetAudience,
       });
       await editIdea(id, { aiAnalysis: freshAnalysis });
-    } catch (err) {
+    } catch {
       setError("Re-analysis failed. Please try again.");
     } finally {
       setReAnalyzing(false);

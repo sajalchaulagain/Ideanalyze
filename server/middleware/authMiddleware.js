@@ -38,7 +38,7 @@ async function protect(req, res, next) {
     }
 
     next(); // Token is valid — let the request continue to the controller.
-  } catch (error) {
+  } catch {
     // Covers invalid signature, malformed token, and expiry (TokenExpiredError).
     return res.status(401).json({ success: false, message: "Not authorized: invalid or expired token" });
   }

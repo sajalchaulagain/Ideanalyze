@@ -20,6 +20,12 @@ const REQUIRED_KEYS = [
   "futureImprovements",
 ];
 
+function notConfigured(detail) {
+  const error = new Error(detail || "AI not configured");
+  error.statusCode = 503;
+  return error;
+}
+
 function buildPrompt({ title, description, category, targetAudience }) {
   return `You are a startup idea analyst. Analyze the following idea and respond with ONLY a valid JSON object (no markdown, no code fences, no extra text) with exactly these keys:
 
@@ -52,9 +58,9 @@ function parseAIResponse(rawText) {
   let parsed;
   try {
     parsed = JSON.parse(cleaned);
-  } catch (e) {
+  } catch (error) {
     console.error(colors.yellow(`⚠️ AI returned invalid JSON:`), cleaned.slice(0, 500));
-    throw new Error("The AI returned an unreadable response. Please try again.");
+    throw new Error("The AI returned an unreadable response. Please try again.", { cause: error });
   }
 
   for (const key of REQUIRED_KEYS) {
@@ -99,14 +105,22 @@ async function sendGeminiRequest(model, apiKey, promptText) {
 
 async function analyzeIdea({ title, description, category, targetAudience }) {
   const apiKey = (process.env.AI_API_KEY || "").trim();
-  if (!apiKey || apiKey.includes("your_ai_api_key")) {
-    const error = new Error("AI service is not configured. Add your AI_API_KEY to server/.env.");
-    error.statusCode = 503;
-    throw error;
+  const configuredBaseUrl = (process.env.AI_BASE_URL || "").trim();
+  const hasBaseUrl = Boolean(configuredBaseUrl);
+  const keyIsPlaceholder =
+    !apiKey || apiKey.includes("your_ai_api_key") || apiKey.startsWith("change_me");
+  const hasUsableKey = !keyIsPlaceholder;
+
+  // With neither an explicit endpoint nor a Gemini key there is nowhere safe to
+  // send the request. Never fall back to a hardcoded third-party host.
+  if (!hasBaseUrl && !hasUsableKey) {
+    throw notConfigured(
+      "AI not configured: set AI_API_KEY for Google Gemini, or set both AI_BASE_URL and AI_API_KEY for an OpenAI-compatible provider."
+    );
   }
 
   let model = (process.env.AI_MODEL || "").trim();
-  let baseUrl = (process.env.AI_BASE_URL || "").trim();
+  let baseUrl = configuredBaseUrl;
 
   if (model.startsWith("http://") || model.startsWith("https://")) {
     baseUrl = model;
@@ -115,17 +129,29 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
 
   if (!model) model = "gemini-flash-lite-latest";
 
+  // OpenAI-style keys ("sk-...") require an explicit AI_BASE_URL. Falling back
+  // to a hardcoded third-party host would leak the key to an unexpected vendor.
+  const isGeminiKey = hasUsableKey && !apiKey.startsWith("sk-");
+  if (!baseUrl && !isGeminiKey) {
+    throw notConfigured(
+      "AI not configured: AI_BASE_URL is required when AI_API_KEY is an OpenAI-compatible key."
+    );
+  }
+
   const promptText = buildPrompt({ title, description, category, targetAudience });
-  let rawText = "";
+  let rawText;
 
   try {
-    const isOpenAICompatible = Boolean(baseUrl || apiKey.startsWith("sk-"));
+    const isOpenAICompatible = Boolean(baseUrl);
 
     if (isOpenAICompatible) {
-      const finalBaseUrl = (baseUrl || "https://api.bazaarlink.ai/v1").replace(/\/+$/, "");
+      const finalBaseUrl = baseUrl.replace(/\/+$/, "");
       const chatUrl = `${finalBaseUrl}/chat/completions`;
 
       console.log(colors.cyan(`🤖 Requesting AI analysis via OpenAI-compatible endpoint: ${chatUrl} (model: ${model})`));
+
+      const headers = { "Content-Type": "application/json" };
+      if (hasUsableKey) headers.Authorization = `Bearer ${apiKey}`;
 
       const response = await axios.post(
         chatUrl,
@@ -138,10 +164,7 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
           temperature: 0.7,
         },
         {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
+          headers,
           timeout: 60000,
         }
       );
@@ -177,15 +200,22 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
     console.error(colors.red(`⚠️ AI provider request failed [${providerStatus || "ERROR"}]:`), providerMessage);
 
     if (providerStatus === 401 || providerStatus === 403) {
-      throw new Error("AI request rejected. Please check that AI_API_KEY in server/.env is valid.");
+      throw new Error("AI request rejected. Please check that AI_API_KEY in server/.env is valid.", {
+        cause: error,
+      });
     }
     if (providerStatus === 402) {
-      throw new Error("AI provider account balance insufficient. Please check credits or use a Google Gemini key.");
+      throw new Error(
+        "AI provider account balance insufficient. Please check credits or use a Google Gemini key.",
+        { cause: error }
+      );
     }
     if (providerStatus === 429) {
-      throw new Error("AI quota exceeded. Please wait a minute and try again.");
+      throw new Error("AI quota exceeded. Please wait a minute and try again.", { cause: error });
     }
-    throw new Error(`AI analysis failed (${providerMessage}). Please try again in a moment.`);
+    throw new Error(`AI analysis failed (${providerMessage}). Please try again in a moment.`, {
+      cause: error,
+    });
   }
 }
 

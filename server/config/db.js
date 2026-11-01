@@ -8,21 +8,77 @@ const colors = {
   cyan: (t) => `\x1b[36m${t}\x1b[0m`,
 };
 
+const ATLAS_HINTS = [
+  {
+    test: /authentication failed|bad auth|auth(?:entication)? error|invalid credentials/i,
+    text:
+      "Authentication failed — check the username/password inside MONGO_URI. " +
+      "URL-encode special characters (for example @ → %40 and : → %3A) and confirm the database user exists.",
+  },
+  {
+    test: /whitelist|not allowed|ip address|access list|could not connect to any servers/i,
+    text:
+      "IP not whitelisted — in MongoDB Atlas open Network Access and add 0.0.0.0/0 " +
+      "(or your Render egress IP) to the allowlist.",
+  },
+  {
+    test: /querySrv|_mongodb._tcp|eservfail|enotfound|dns|srv/i,
+    text:
+      "DNS/SRV lookup failed — verify the cluster hostname in MONGO_URI, that the cluster still exists, " +
+      "and that DNS resolution works from this host.",
+  },
+  {
+    test: /27017|econnrefused|etimedout|timeout|timed out|server selection/i,
+    text:
+      "Port 27017 blocked/timed out — allow outbound TCP 27017 through the firewall. " +
+      "Serverless hosts such as Render must be able to reach Atlas directly.",
+  },
+];
+
+function printConnectionHints(error) {
+  const message = `${error?.message || ""} ${error?.cause?.message || ""}`;
+  const hints = ATLAS_HINTS.filter((hint) => hint.test.test(message)).map((hint) => hint.text);
+
+  if (hints.length === 0) {
+    hints.push(
+      "Check MONGO_URI, the Atlas Network Access allowlist, DNS resolution, and outbound TCP 27017."
+    );
+  }
+
+  console.error(colors.yellow("\nConnection troubleshooting:"));
+  for (const hint of hints) {
+    console.error(colors.yellow(`  • ${hint}`));
+  }
+}
+
 async function connectDB() {
-  if (!process.env.MONGO_URI || process.env.MONGO_URI.includes("your_mongodb")) {
-    console.warn(colors.yellow("\n⚠️ MONGO_URI is missing or unconfigured in server/.env"));
-    console.warn(colors.yellow("   Set a valid MONGO_URI in server/.env to enable database operations.\n"));
-    return false;
+  const uri = (process.env.MONGO_URI || "").trim();
+
+  if (!uri || uri.includes("your_mongodb")) {
+    const error = new Error(
+      "MONGO_URI is missing or still set to a placeholder. Set a real MongoDB Atlas connection string in server/.env."
+    );
+    console.error(colors.red(`\n❌ ${error.message}\n`));
+    throw error;
   }
 
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(colors.bold(colors.green(`✅ MongoDB connected successfully: ${colors.cyan(conn.connection.host)}`)));
-    return true;
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 10000,
+      bufferCommands: false,
+      maxPoolSize: 10,
+      autoIndex: process.env.NODE_ENV !== "production",
+    });
+
+    console.log(
+      colors.bold(colors.green(`✅ MongoDB connected successfully: ${colors.cyan(conn.connection.host)}`))
+    );
+    return conn;
   } catch (error) {
     console.error(colors.red(`\n❌ MongoDB connection failed: ${error.message}`));
-    console.error(colors.yellow("   Check MONGO_URI in server/.env, IP whitelist, and network connection.\n"));
-    return false;
+    printConnectionHints(error);
+    console.error("");
+    throw error;
   }
 }
 

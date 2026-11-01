@@ -57,7 +57,7 @@ export default function CreateIdea() {
         createdAt: new Date().toISOString(),
       });
       navigate(`/idea/${saved._id}`);
-    } catch (err) {
+    } catch {
       setError("Could not save the idea. Please try again.");
     }
   };

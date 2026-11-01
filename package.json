@@ -7,6 +7,7 @@
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:server": "npm --prefix server run dev",
     "build": "npm --prefix frontend run build",
+    "lint": "node ./frontend/node_modules/eslint/bin/eslint.js . --config frontend/eslint.config.js",
     "install:all": "npm install --prefix frontend && npm install --prefix server && npm install"
   },
   "devDependencies": {

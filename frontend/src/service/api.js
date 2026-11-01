@@ -46,7 +46,7 @@ export async function signupUser({ name, email, password }) {
     }
     return res.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Signup failed"));
+    throw new Error(getErrorMessage(error, "Signup failed"), { cause: error });
   }
 }
 
@@ -58,7 +58,7 @@ export async function loginUser({ email, password }) {
     }
     return res.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Login failed"));
+    throw new Error(getErrorMessage(error, "Login failed"), { cause: error });
   }
 }
 
@@ -66,7 +66,7 @@ export async function getMe() {
   try {
     const res = await api.get("/auth/me");
     return res.data.data?.user;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -90,7 +90,7 @@ export async function createIdea(payload) {
     const res = await api.post("/ideas", payload);
     return res.data?.data?.idea;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to create idea"));
+    throw new Error(getErrorMessage(error, "Failed to create idea"), { cause: error });
   }
 }
 
@@ -99,7 +99,7 @@ export async function updateIdea(id, payload) {
     const res = await api.put(`/ideas/${id}`, payload);
     return res.data?.data?.idea;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to update idea"));
+    throw new Error(getErrorMessage(error, "Failed to update idea"), { cause: error });
   }
 }
 
@@ -108,7 +108,7 @@ export async function deleteIdea(id) {
     await api.delete(`/ideas/${id}`);
     return id;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to delete idea"));
+    throw new Error(getErrorMessage(error, "Failed to delete idea"), { cause: error });
   }
 }
 
@@ -126,6 +126,6 @@ export async function analyzeIdeaWithAI({ title, description, category, targetAu
     });
     return res.data?.data?.analysis;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "AI analysis failed"));
+    throw new Error(getErrorMessage(error, "AI analysis failed"), { cause: error });
   }
 }

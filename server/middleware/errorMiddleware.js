@@ -7,6 +7,10 @@ const colors = {
 };
 
 function errorHandler(err, req, res, next) {
+  // Express only treats a middleware as an error handler when it declares four
+  // parameters, even though `next` is not needed in the final handler.
+  void next;
+
   console.error(
     `${colors.red("❌")} ${colors.magenta(req.method)} ${colors.cyan(req.originalUrl)} → ${colors.red(
       err.message
