@@ -38,7 +38,10 @@ function errorHandler(err, req, res, next) {
       .join(". ");
   }
 
-  res.status(statusCode).json({ success: false, message });
+  const response = { success: false, message };
+  if (typeof err.code === "string") response.code = err.code;
+
+  res.status(statusCode).json(response);
 }
 
 module.exports = errorHandler;

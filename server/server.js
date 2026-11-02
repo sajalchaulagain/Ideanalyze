@@ -70,6 +70,7 @@ app.use(
 
       const error = new Error("Origin not allowed by CORS");
       error.statusCode = 403;
+      error.code = "CORS_ORIGIN_DENIED";
       return callback(error);
     },
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
@@ -122,6 +123,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api", (req, res) => {
   res.status(404).json({
     success: false,
+    code: "ROUTE_NOT_FOUND",
     message: `Route not found: ${req.method} ${req.originalUrl}`,
   });
 });
@@ -192,4 +194,7 @@ process.on("uncaughtException", (error) => {
   process.exit(1);
 });
 
-module.exports = { app, startServer, allowedOrigins };
+app.startServer = startServer;
+app.allowedOrigins = allowedOrigins;
+
+module.exports = app;
