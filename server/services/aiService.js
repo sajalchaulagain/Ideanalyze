@@ -23,6 +23,7 @@ const REQUIRED_KEYS = [
 function notConfigured(detail) {
   const error = new Error(detail || "AI not configured");
   error.statusCode = 503;
+  error.code = "AI_NOT_CONFIGURED";
   return error;
 }
 
@@ -84,7 +85,7 @@ function parseAIResponse(rawText) {
   };
 }
 
-async function sendGeminiRequest(model, apiKey, promptText) {
+async function sendGeminiRequest(model, apiKey, promptText, timeout) {
   const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   return axios.post(
     geminiUrl,
@@ -98,7 +99,7 @@ async function sendGeminiRequest(model, apiKey, promptText) {
     },
     {
       headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
-      timeout: 60000,
+      timeout,
     }
   );
 }
@@ -110,6 +111,7 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
   const keyIsPlaceholder =
     !apiKey || apiKey.includes("your_ai_api_key") || apiKey.startsWith("change_me");
   const hasUsableKey = !keyIsPlaceholder;
+  const isGeminiKey = /^AIza[0-9A-Za-z_-]+$/.test(apiKey);
 
   // With neither an explicit endpoint nor a Gemini key there is nowhere safe to
   // send the request. Never fall back to a hardcoded third-party host.
@@ -128,10 +130,12 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
   }
 
   if (!model) model = "gemini-flash-lite-latest";
+  const fallbackModel = (process.env.AI_FALLBACK_MODEL || "gemini-flash-latest").trim();
+  const configuredTimeout = Number.parseInt(process.env.AI_TIMEOUT_MS || "25000", 10);
+  const timeout = Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 25000;
 
   // OpenAI-style keys ("sk-...") require an explicit AI_BASE_URL. Falling back
   // to a hardcoded third-party host would leak the key to an unexpected vendor.
-  const isGeminiKey = hasUsableKey && !apiKey.startsWith("sk-");
   if (!baseUrl && !isGeminiKey) {
     throw notConfigured(
       "AI not configured: AI_BASE_URL is required when AI_API_KEY is an OpenAI-compatible key."
@@ -165,7 +169,7 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
         },
         {
           headers,
-          timeout: 60000,
+          timeout,
         }
       );
 
@@ -175,11 +179,19 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
 
       let response;
       try {
-        response = await sendGeminiRequest(model, apiKey, promptText);
+        response = await sendGeminiRequest(model, apiKey, promptText, timeout);
       } catch (err) {
-        if ((err.response?.status === 404 || err.response?.status === 503) && model !== "gemini-3.5-flash-lite") {
-          console.warn(colors.yellow(`⚠️ Model '${model}' returned ${err.response?.status}. Falling back to 'gemini-3.5-flash-lite'...`));
-          response = await sendGeminiRequest("gemini-3.5-flash-lite", apiKey, promptText);
+        if (
+          (err.response?.status === 404 || err.response?.status === 503) &&
+          fallbackModel &&
+          model !== fallbackModel
+        ) {
+          console.warn(
+            colors.yellow(
+              `⚠️ Model '${model}' returned ${err.response?.status}. Falling back to '${fallbackModel}'...`
+            )
+          );
+          response = await sendGeminiRequest(fallbackModel, apiKey, promptText, timeout);
         } else {
           throw err;
         }

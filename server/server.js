@@ -53,6 +53,14 @@ function assertProductionJwtSecret() {
   }
 }
 
+function configuredAIProvider() {
+  if ((process.env.AI_BASE_URL || "").trim()) return "OpenAI-compatible";
+  if (/^AIza[0-9A-Za-z_-]+$/.test((process.env.AI_API_KEY || "").trim())) {
+    return "Google Gemini";
+  }
+  return "not configured";
+}
+
 const app = express();
 
 app.disable("x-powered-by");
@@ -134,6 +142,7 @@ const PORT = process.env.PORT || 5000;
 
 async function startServer() {
   assertProductionJwtSecret();
+  console.log(colors.cyan(`AI provider: ${configuredAIProvider()}`));
   await connectDB();
 
   const server = app.listen(PORT, () => {
