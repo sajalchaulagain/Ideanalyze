@@ -24,7 +24,6 @@ const colors = {
 
 const PLACEHOLDER_JWT_SECRETS = new Set([
   "change_me_generate_a_real_secret",
-  "super_secret_jwt_key_hackathon_2026_change_in_prod",
   "your_jwt_secret",
   "your-secret",
   "changeme",
