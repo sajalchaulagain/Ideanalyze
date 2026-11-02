@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { AppError } = require("../utils/AppError");
 
 /*
   Route guard for protected endpoints (ideas, AI, /auth/me).
@@ -20,7 +21,7 @@ async function protect(req, res, next) {
   }
 
   if (!token) {
-    return res.status(401).json({ success: false, message: "Not authorized: no token provided" });
+    return next(new AppError("TOKEN_MISSING", 401, "Not authorized: no token provided"));
   }
 
   try {
@@ -34,13 +35,13 @@ async function protect(req, res, next) {
     req.user = await User.findById(decoded.id).select("-password");
 
     if (!req.user) {
-      return res.status(401).json({ success: false, message: "Not authorized: user no longer exists" });
+      return next(new AppError("TOKEN_INVALID", 401, "Not authorized: user no longer exists"));
     }
 
     next(); // Token is valid — let the request continue to the controller.
-  } catch {
-    // Covers invalid signature, malformed token, and expiry (TokenExpiredError).
-    return res.status(401).json({ success: false, message: "Not authorized: invalid or expired token" });
+  } catch (error) {
+    if (error.name === "AppError") return next(error);
+    return next(new AppError("TOKEN_INVALID", 401, "Not authorized: invalid or expired token"));
   }
 }
 
