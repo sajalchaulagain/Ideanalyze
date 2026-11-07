@@ -8,6 +8,7 @@ const path = require("path");
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 const connectDB = require("./config/db");
+const { checkDbHealth } = require("./db/health");
 const authRoutes = require("./routes/authRoutes");
 const ideaRoutes = require("./routes/ideaRoutes");
 const aiRoutes = require("./routes/aiRoutes");
@@ -110,14 +111,16 @@ app.use((req, res, next) => {
 });
 
 // Health check: reads Mongoose's local readyState only, so it can never hang on a DB query.
-app.get("/api/health", (req, res) => {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).json({ status: "degraded", db: "disconnected" });
+app.get("/api/health", async (req, res) => {
+  const health = await checkDbHealth();
+  if (!health.ok) {
+    return res.status(503).json({ status: "degraded", db: "disconnected", provider: health.provider });
   }
 
   res.json({
     status: "ok",
     db: "connected",
+    provider: health.provider,
     timestamp: new Date().toISOString(),
   });
 });
@@ -142,7 +145,13 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   assertProductionJwtSecret();
   console.log(colors.cyan(`AI provider: ${configuredAIProvider()}`));
-  await connectDB();
+  const dbProvider = (process.env.DB_PROVIDER || "mongo").trim().toLowerCase();
+  console.log(colors.cyan(`DB provider: ${dbProvider === "supabase" ? "supabase" : "mongo"}`));
+  if (dbProvider === "supabase") {
+    console.log(colors.yellow("MongoDB connection skipped because DB_PROVIDER=supabase."));
+  } else {
+    await connectDB();
+  }
 
   const server = app.listen(PORT, () => {
     console.log(
@@ -168,8 +177,10 @@ async function startServer() {
 
     server.close(async () => {
       try {
-        await mongoose.connection.close(false);
-        console.log(colors.green("✅ MongoDB connection closed. Bye."));
+        if (dbProvider !== "supabase") {
+          await mongoose.connection.close(false);
+          console.log(colors.green("✅ MongoDB connection closed. Bye."));
+        }
       } catch (error) {
         console.error(colors.red(`Error closing MongoDB connection: ${error.message}`));
       } finally {
