@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
 import AIAnalysis from "../components/AIAnalysis";
-import { mockAnalysis } from "../data/mockIdeas";
+import { mockAnalysis } from "../data/mockAnalysis";
 
 const features = [
   {

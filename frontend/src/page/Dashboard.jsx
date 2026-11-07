@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useIdeas } from "../context/IdeasContext";
 import Button from "../components/Button";
 import IdeaList from "../components/IdeaList";
-import { ideaCategories } from "../data/mockIdeas";
+import { ideaCategories } from "../data/ideaCategories";
 
 export default function Dashboard() {
   const { user } = useAuth();
