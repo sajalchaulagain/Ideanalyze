@@ -9,6 +9,9 @@
     "test": "node --test tests/smoke.test.js",
     "test:watch": "node --test --watch tests/smoke.test.js"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
     "axios": "^1.6.8",
