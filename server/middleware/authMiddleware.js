@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 const { AppError } = require("../utils/AppError");
+const users = require("../db/repositories/users");
 
 /*
   Route guard for protected endpoints (ideas, AI, /auth/me).
@@ -32,7 +32,7 @@ async function protect(req, res, next) {
     // Load the fresh user from the database (without the password).
     // Why not trust the token alone? So deleted/deactivated accounts
     // instantly lose access even if their old token hasn't expired yet.
-    req.user = await User.findById(decoded.id).select("-password");
+    req.user = await users.findById(decoded.id);
 
     if (!req.user) {
       return next(new AppError("TOKEN_INVALID", 401, "Not authorized: user no longer exists"));
