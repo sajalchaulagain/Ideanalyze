@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { toUser, toPublicUser, toIdea, fromIdeaInput } = require("../db/mappers");
+const { toUser, toPublicUser, toIdea, fromIdeaInput, fromIdeaPatch } = require("../db/mappers");
 
 test("toIdea maps database columns to the app shape", () => {
   const idea = toIdea({
@@ -61,4 +61,26 @@ test("fromIdeaInput uses the authenticated user and whitelists fields", () => {
 test("mappers are null-safe", () => {
   assert.equal(toIdea(null), null);
   assert.equal(toUser(null), null);
+});
+
+test("fromIdeaInput maps camelCase target audience and AI analysis", () => {
+  const input = fromIdeaInput(
+    { title: "T", targetAudience: "Students", aiAnalysis: { score: 7 } },
+    "u1"
+  );
+  assert.equal(input.target_audience, "Students");
+  assert.deepEqual(input.ai_analysis, { score: 7 });
+});
+
+test("fromIdeaInput omits absent optional fields", () => {
+  const input = fromIdeaInput({ title: "T" }, "u1");
+  assert.deepEqual(Object.keys(input).sort(), ["title", "user_id"]);
+  assert.equal("description" in input, false);
+  assert.equal("category" in input, false);
+  assert.equal("target_audience" in input, false);
+  assert.equal("ai_analysis" in input, false);
+});
+
+test("fromIdeaPatch keeps only supplied columns", () => {
+  assert.deepEqual(Object.keys(fromIdeaPatch({ title: "x" })), ["title"]);
 });
