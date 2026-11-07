@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const request = require("supertest");
+const { getSupabase } = require("../db/supabase");
 
 process.env.NODE_ENV = "test";
 process.env.JWT_SECRET = "test-only-jwt-secret";
@@ -15,12 +16,22 @@ test("API smoke suite", async (t) => {
     return;
   }
   const app = require("../server");
+  const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const firstEmail = `test+${suffix}@example.com`;
+  const secondEmail = `test+second-${suffix}@example.com`;
+  const userIds = [];
+
+  t.after(async () => {
+    if (!userIds.length) return;
+    await getSupabase().from("ideas").delete().in("user_id", userIds);
+    await getSupabase().from("users").delete().in("id", userIds);
+  });
 
   let firstToken;
   let firstUser;
   let ideaId;
 
-  await t.test("health reports connected MongoDB", async () => {
+  await t.test("health reports connected Supabase", async () => {
     const response = await request(app).get("/api/health");
     assert.equal(response.status, 200);
     assert.equal(response.body.provider, "supabase");
@@ -29,14 +40,15 @@ test("API smoke suite", async (t) => {
   await t.test("duplicate signup is rejected", async () => {
     const first = await request(app)
       .post("/api/auth/signup")
-      .send({ name: "Dupe", email: "dupe@test.com", password: "validpass1" });
+      .send({ name: "Dupe", email: firstEmail, password: "validpass1" });
     assert.equal(first.status, 201);
     firstToken = first.body.data.token;
     firstUser = first.body.data.user;
+    userIds.push(firstUser.id);
 
     const second = await request(app)
       .post("/api/auth/signup")
-      .send({ name: "Dupe Two", email: "DUPE@test.com", password: "validpass1" });
+      .send({ name: "Dupe Two", email: firstEmail.toUpperCase(), password: "validpass1" });
     assert.equal(second.status, 409);
     assert.equal(second.body.code, "EMAIL_TAKEN");
   });
@@ -47,7 +59,7 @@ test("API smoke suite", async (t) => {
       .send({ email: "unknown@test.com", password: "validpass1" });
     const wrong = await request(app)
       .post("/api/auth/login")
-      .send({ email: "dupe@test.com", password: "wrongpass1" });
+      .send({ email: firstEmail, password: "wrongpass1" });
     assert.equal(unknown.status, 401);
     assert.equal(wrong.status, 401);
     assert.equal(unknown.body.message, wrong.body.message);
@@ -123,8 +135,9 @@ test("API smoke suite", async (t) => {
   await t.test("another user cannot discover the idea", async () => {
     const signup = await request(app)
       .post("/api/auth/signup")
-      .send({ name: "Second", email: "second@test.com", password: "validpass1" });
+      .send({ name: "Second", email: secondEmail, password: "validpass1" });
     secondToken = signup.body.data.token;
+    userIds.push(signup.body.data.user.id);
     const response = await request(app)
       .get(`/api/ideas/${ideaId}`)
       .set("Authorization", `Bearer ${secondToken}`);
@@ -152,5 +165,5 @@ test("API smoke suite", async (t) => {
     assert.equal(response.body.code, "AI_NOT_CONFIGURED");
   });
 
-  assert.equal(firstUser.email, "dupe@test.com");
+  assert.equal(firstUser.email, firstEmail.toLowerCase());
 });
