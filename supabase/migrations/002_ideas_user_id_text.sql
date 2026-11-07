@@ -21,6 +21,9 @@ BEGIN
 END
 $$;
 
+-- No index is recreated here: changing the column type rebuilds the existing
+-- user-created index, and text(created_at) is not a valid Postgres index form.
+
 DO $$
 BEGIN
   IF EXISTS (
@@ -38,5 +41,3 @@ BEGIN
 END
 $$;
 
-CREATE INDEX IF NOT EXISTS ideas_user_created_idx
-  ON public.ideas (user_id, (text(created_at)) DESC);

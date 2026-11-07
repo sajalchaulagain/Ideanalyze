@@ -36,14 +36,23 @@ function toIdea(row) {
 }
 
 function fromIdeaInput(payload = {}, userId) {
-  return {
-    user_id: userId,
-    title: payload.title ?? null,
-    description: payload.description ?? null,
-    category: payload.category ?? null,
-    target_audience: payload.target_audience ?? null,
-    ai_analysis: payload.ai_analysis ?? null,
-  };
+  const row = { user_id: userId };
+  if (payload.title !== undefined) row.title = payload.title;
+  if (payload.description !== undefined) row.description = payload.description;
+  if (payload.category !== undefined) row.category = payload.category;
+  if (payload.targetAudience !== undefined) row.target_audience = payload.targetAudience;
+  if (payload.aiAnalysis !== undefined) row.ai_analysis = payload.aiAnalysis;
+  return row;
 }
 
-module.exports = { toUser, toPublicUser, toIdea, fromIdeaInput };
+function fromIdeaPatch(payload = {}) {
+  const row = {};
+  if (payload.title !== undefined) row.title = payload.title;
+  if (payload.description !== undefined) row.description = payload.description;
+  if (payload.category !== undefined) row.category = payload.category;
+  if (payload.targetAudience !== undefined) row.target_audience = payload.targetAudience;
+  if (payload.aiAnalysis !== undefined) row.ai_analysis = payload.aiAnalysis;
+  return row;
+}
+
+module.exports = { toUser, toPublicUser, toIdea, fromIdeaInput, fromIdeaPatch };

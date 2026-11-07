@@ -59,6 +59,8 @@ The API listens on http://localhost:5000 by default.
 
 See [`.env.example`](.env.example) for the full annotated list.
 
+When you add a test file, add it to the test script or it will not run.
+
 | Variable | Required | Description |
 | --- | --- | --- |
 | `NODE_ENV` | Production | `production` disables auto-indexing and enables secret checks |
