@@ -225,7 +225,7 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
     if (providerStatus === 429) {
       throw new Error("AI quota exceeded. Please wait a minute and try again.", { cause: error });
     }
-    throw new Error(`AI analysis failed (${providerMessage}). Please try again in a moment.`, {
+    throw new Error("AI analysis failed. Please try again in a moment.", {
       cause: error,
     });
   }

@@ -175,7 +175,7 @@ async function startServer() {
       try {
         console.log(colors.green("✅ Server closed. Bye."));
       } catch (error) {
-        console.error(colors.red(`Error closing MongoDB connection: ${error.message}`));
+        console.error(colors.red(`Error closing server: ${error.message}`));
       } finally {
         clearTimeout(forceExit);
         process.exit(0);
