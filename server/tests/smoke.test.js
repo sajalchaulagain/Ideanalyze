@@ -1,8 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const request = require("supertest");
-const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
 
 process.env.NODE_ENV = "test";
 process.env.JWT_SECRET = "test-only-jwt-secret";
@@ -12,26 +10,10 @@ process.env.AI_BASE_URL = "";
 process.env.CLIENT_URL = "http://localhost:5173";
 
 test("API smoke suite", async (t) => {
-  if ((process.env.DB_PROVIDER || "mongo").trim().toLowerCase() === "supabase") {
-    t.skip("requires mongo; run with DB_PROVIDER=mongo");
+  if (process.env.RUN_INTEGRATION !== "1" || (process.env.DB_PROVIDER || "").trim().toLowerCase() !== "supabase") {
+    t.skip("credentialed Supabase suite; run with RUN_INTEGRATION=1 DB_PROVIDER=supabase");
     return;
   }
-
-  let mongo;
-  try {
-    mongo = await MongoMemoryServer.create();
-  } catch {
-    t.skip("mongodb-memory-server could not start");
-    return;
-  }
-
-  t.after(async () => {
-    await mongoose.connection.close();
-    await mongo.stop();
-  });
-
-  process.env.MONGO_URI = mongo.getUri();
-  await require("../config/db")();
   const app = require("../server");
 
   let firstToken;
@@ -41,7 +23,7 @@ test("API smoke suite", async (t) => {
   await t.test("health reports connected MongoDB", async () => {
     const response = await request(app).get("/api/health");
     assert.equal(response.status, 200);
-    assert.equal(response.body.db, "connected");
+    assert.equal(response.body.provider, "supabase");
   });
 
   await t.test("duplicate signup is rejected", async () => {

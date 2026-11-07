@@ -1,13 +1,6 @@
-const mongoose = require("mongoose");
 const { getSupabase } = require("./supabase");
 
 const SUPABASE_HEALTH_TIMEOUT_MS = 2000;
-
-function activeProvider() {
-  return (process.env.DB_PROVIDER || "mongo").trim().toLowerCase() === "supabase"
-    ? "supabase"
-    : "mongo";
-}
 
 async function checkSupabaseHealth() {
   let timeout;
@@ -27,9 +20,7 @@ async function checkSupabaseHealth() {
 }
 
 async function checkDbHealth() {
-  const provider = activeProvider();
-  const ok = provider === "mongo" ? mongoose.connection.readyState === 1 : await checkSupabaseHealth();
-  return { ok, provider };
+  return { ok: await checkSupabaseHealth(), provider: "supabase" };
 }
 
 module.exports = { checkDbHealth };

@@ -1,13 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const path = require("path");
 
 dotenv.config({ path: path.join(__dirname, ".env") });
 
-const connectDB = require("./config/db");
 const { checkDbHealth } = require("./db/health");
 const authRoutes = require("./routes/authRoutes");
 const ideaRoutes = require("./routes/ideaRoutes");
@@ -110,7 +108,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check: reads Mongoose's local readyState only, so it can never hang on a DB query.
+// Health check uses a bounded Supabase probe.
 app.get("/api/health", async (req, res) => {
   const health = await checkDbHealth();
   if (!health.ok) {
@@ -145,13 +143,11 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   assertProductionJwtSecret();
   console.log(colors.cyan(`AI provider: ${configuredAIProvider()}`));
-  const dbProvider = (process.env.DB_PROVIDER || "mongo").trim().toLowerCase();
-  console.log(colors.cyan(`DB provider: ${dbProvider === "supabase" ? "supabase" : "mongo"}`));
-  if (dbProvider === "supabase") {
-    console.log(colors.yellow("MongoDB connection skipped because DB_PROVIDER=supabase."));
-  } else {
-    await connectDB();
+  const dbProvider = (process.env.DB_PROVIDER || "supabase").trim().toLowerCase();
+  if (dbProvider === "mongo") {
+    console.log(colors.yellow("MongoDB support was removed; continuing with Supabase."));
   }
+  console.log(colors.cyan("DB provider: supabase"));
 
   const server = app.listen(PORT, () => {
     console.log(
@@ -177,10 +173,7 @@ async function startServer() {
 
     server.close(async () => {
       try {
-        if (dbProvider !== "supabase") {
-          await mongoose.connection.close(false);
-          console.log(colors.green("✅ MongoDB connection closed. Bye."));
-        }
+        console.log(colors.green("✅ Server closed. Bye."));
       } catch (error) {
         console.error(colors.red(`Error closing MongoDB connection: ${error.message}`));
       } finally {

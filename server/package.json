@@ -1,7 +1,7 @@
 {
   "name": "ai-idea-analyzer-server",
   "version": "1.0.0",
-  "description": "Express + MongoDB + Gemini backend for AI Idea Analyzer",
+  "description": "Express + Supabase + Gemini backend for AI Idea Analyzer",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -22,11 +22,9 @@
     "express-rate-limit": "^8.7.2",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.3.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "mongodb-memory-server": "^11.3.0",
     "nodemon": "^3.1.0",
     "supertest": "^7.3.1"
   }
