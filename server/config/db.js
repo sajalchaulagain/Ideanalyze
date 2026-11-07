@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { AppError } = require("../utils/AppError");
 
 const colors = {
   bold: (t) => `\x1b[1m${t}\x1b[0m`,
@@ -55,7 +56,9 @@ async function connectDB() {
   const uri = (process.env.MONGO_URI || "").trim();
 
   if (!uri || uri.includes("your_mongodb")) {
-    const error = new Error(
+    const error = new AppError(
+      "DB_UNAVAILABLE",
+      503,
       "MONGO_URI is missing or still set to a placeholder. Set a real MongoDB Atlas connection string in server/.env."
     );
     console.error(colors.red(`\n❌ ${error.message}\n`));

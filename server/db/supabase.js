@@ -1,13 +1,5 @@
 const { createClient } = require("@supabase/supabase-js");
-
-class AppError extends Error {
-  constructor(code, statusCode, message) {
-    super(message);
-    this.name = "AppError";
-    this.code = code;
-    this.statusCode = statusCode;
-  }
-}
+const { AppError } = require("../utils/AppError");
 
 let client;
 
@@ -35,4 +27,4 @@ function getSupabase() {
   return client;
 }
 
-module.exports = { AppError, getSupabase };
+module.exports = { getSupabase };
