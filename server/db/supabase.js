@@ -27,4 +27,9 @@ function getSupabase() {
   return client;
 }
 
-module.exports = { getSupabase };
+function unwrap({ data, error }, code = "DB_UNAVAILABLE") {
+  if (error) throw new AppError(code, 503, "A database request failed.");
+  return data;
+}
+
+module.exports = { getSupabase, unwrap };
