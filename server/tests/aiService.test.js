@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const axios = require("axios");
+process.env.NODE_ENV = "test";
 const { analyzeIdea, getAIStatus, parseAIResponse } = require("../services/aiService");
 
 const analysis = {
@@ -126,7 +127,7 @@ test("AI status reads provider limits and caches for one minute", async () => {
   axios.get = async () => {
     calls += 1;
     return {
-      data: { data: { limit_remaining: 2, limit: 50 } },
+      data: { data: { limit_remaining: null, limit: null, free_model_daily_requests: { remaining: 2, limit: 50 } } },
       headers: { "x-ratelimit-reset": String(Date.now() + 60000) },
     };
   };

@@ -245,6 +245,7 @@ async function getAIStatus() {
       timeout: 5000,
     });
     const data = response.data?.data || response.data || {};
+    const freeModelAllowance = data.free_model_daily_requests || {};
     const resetHeader = headerValue(response.headers, "x-ratelimit-reset");
     const resetMilliseconds = Number(resetHeader);
     const resetsAt = Number.isFinite(resetMilliseconds) && resetMilliseconds > 0
@@ -253,8 +254,8 @@ async function getAIStatus() {
       ? data.reset_at
       : null;
     value = {
-      remaining: numericOrNull(data.limit_remaining),
-      limit: numericOrNull(data.limit),
+      remaining: numericOrNull(data.limit_remaining) ?? numericOrNull(freeModelAllowance.remaining),
+      limit: numericOrNull(data.limit) ?? numericOrNull(freeModelAllowance.limit),
       resetsAt,
       models,
     };
