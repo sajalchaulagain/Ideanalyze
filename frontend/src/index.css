@@ -2,29 +2,113 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+  Design tokens
+  -------------
+  Semantic colors are defined once here and overridden for dark mode below.
+  Components use these tokens instead of raw hex values so the whole app
+  stays consistent and both themes remain readable.
+*/
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --color-surface-900: #0b0d10;
-  --color-surface-800: #121519;
-  --color-surface-700: #1a1e24;
-  --color-surface-600: #23282f;
-  --color-text-hi: #eef1f5;
-  --color-text-mid: #a4acb9;
-  --color-text-lo: #8791a0;
-  --color-accent-500: #7c5cff;
-  --color-accent-600: #6a4bf0;
-  --color-accent-300: #a99bff;
-  --color-ok-500: #34d399;
-  --color-warn-500: #fbbf24;
-  --color-danger-500: #f87171;
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-canvas: #f7f8fc;
+  --color-canvas-alt: #eef1f7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f5f9;
+  --color-surface-strong: #e9ebf2;
+  --color-border: #e3e5ee;
+  --color-border-strong: #cdd1de;
+  --color-fg: #16181f;
+  --color-fg-muted: #5b6270;
+  --color-fg-subtle: #878d9c;
+
+  --color-brand-50: #eef0ff;
+  --color-brand-100: #e0e3ff;
+  --color-brand-200: #c7ccff;
+  --color-brand-300: #a9adfc;
+  --color-brand-400: #8b8bf9;
+  --color-brand-500: #6c5cf5;
+  --color-brand-600: #5546e8;
+  --color-brand-700: #4638c7;
+
+  --color-accent: #4f46e5;
+  --color-accent-soft: #eef0ff;
+
+  --color-success: #059669;
+  --color-success-strong: #047857;
+  --color-success-ink: #047857;
+  --color-success-soft: #ecfdf5;
+
+  --color-warning: #d97706;
+  --color-warning-strong: #b45309;
+  --color-warning-ink: #92400e;
+  --color-warning-soft: #fffbeb;
+
+  --color-danger: #dc2626;
+  --color-danger-strong: #b91c1c;
+  --color-danger-ink: #b91c1c;
+  --color-danger-soft: #fef2f2;
+
+  --color-info: #2563eb;
+  --color-info-ink: #1d4ed8;
+  --color-info-soft: #eff6ff;
+
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04),
+    0 16px 40px -28px rgb(15 23 42 / 0.22);
+  --shadow-pop: 0 28px 70px -28px rgb(15 23 42 / 0.34);
+
+  --radius-card: 1rem;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --color-canvas: #0b0d12;
+  --color-canvas-alt: #10131b;
+  --color-surface: #14171f;
+  --color-surface-muted: #1a1e28;
+  --color-surface-strong: #242a37;
+  --color-border: #272c39;
+  --color-border-strong: #394052;
+  --color-fg: #eef1f7;
+  --color-fg-muted: #a9b0be;
+  --color-fg-subtle: #7b8393;
+
+  --color-brand-50: #1d1a35;
+  --color-brand-100: #252047;
+  --color-brand-200: #332c63;
+  --color-brand-300: #b7adff;
+  --color-brand-400: #c4bcff;
+
+  --color-accent: #b7adff;
+  --color-accent-soft: #241f3d;
+
+  --color-success-ink: #6ee7b7;
+  --color-success-soft: rgb(5 150 105 / 0.14);
+
+  --color-warning-ink: #fcd34d;
+  --color-warning-soft: rgb(217 119 6 / 0.14);
+
+  --color-danger-ink: #fca5a5;
+  --color-danger-soft: rgb(220 38 38 / 0.14);
+
+  --color-info-ink: #93c5fd;
+  --color-info-soft: rgb(37 99 235 / 0.14);
+
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset,
+    0 18px 44px -28px rgb(0 0 0 / 0.8);
+  --shadow-pop: 0 34px 90px -34px rgb(0 0 0 / 0.85);
 }
 
 :root {
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
-  color: var(--color-text-hi);
-  background: var(--color-surface-900);
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
@@ -32,72 +116,97 @@
 }
 
 html {
-  min-width: 360px;
-  background: var(--color-surface-900);
+  min-width: 320px;
+  scroll-behavior: smooth;
+  background: var(--color-canvas);
 }
 
 body {
-  min-width: 360px;
+  min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background: var(--color-surface-900);
-  color: var(--color-text-hi);
+  background: var(--color-canvas);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
 }
 
-button,
-a,
-[role="button"] {
-  transition: color 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out;
+#root {
+  min-height: 100vh;
 }
 
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
+::selection {
+  background: var(--color-accent);
+  color: #ffffff;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent-500);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes shimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 .animate-fade-up {
-  animation: fade-up 300ms ease-out both;
+  animation: fade-up 320ms ease-out both;
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, var(--color-surface-700), var(--color-surface-600), var(--color-surface-700));
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-muted),
+    var(--color-surface-strong),
+    var(--color-surface-muted)
+  );
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
 
-.nav-active {
-  position: relative;
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-muted),
+    var(--color-surface-strong),
+    var(--color-surface-muted)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
 }
 
-.nav-active::after {
-  position: absolute;
-  right: 12px;
-  bottom: 0;
-  left: 12px;
-  height: 1px;
-  background: var(--color-accent-500);
-  content: "";
+/* Thin, theme-aware scrollbars. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
-
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--color-surface-900); }
-::-webkit-scrollbar-thumb { background: var(--color-surface-600); border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-accent-600); }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+  background-color: var(--color-border-strong);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-fg-subtle);
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

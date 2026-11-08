@@ -10,7 +10,7 @@ Create, edit, browse, and revisit ideas from a focused dashboard. Each idea rema
 
 ### AI analysis
 
-Generate a structured breakdown covering the problem, solution, target users, features, business model, validation plan, and technology direction.
+Generate a structured seven-part breakdown covering the problem, proposed solution, target users, key features, suggested tech stack, possible challenges, and future improvements. AI output is clearly labelled as a draft, and saved analyses are only replaced after a new analysis succeeds.
 
 ### Honest feedback
 

@@ -1,132 +1,265 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  ArrowUpRight,
+  CalendarDays,
+  LogOut,
+  Mail,
+  Pencil,
+  Save,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useIdeas } from "../context/IdeasContext";
+import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
 import ErrorState from "../components/ErrorState";
-import SuccessMessage from "../components/SuccessMessage";
-
-const inputStyles =
-  "w-full rounded-xl border border-surface-600 bg-text-hi px-3.5 py-2.5 text-sm text-surface-800 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-surface-600 transition-colors dark:border-surface-600 dark:bg-surface-800 dark:text-surface-700 dark:focus:ring-accent-600/50";
+import Badge from "../components/ui/Badge";
+import Card from "../components/ui/Card";
+import FormField from "../components/ui/FormField";
+import { inputClass } from "../components/ui/formStyles";
+import { formatDate, hasAnalysis } from "../lib/format";
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, updateProfile, logout } = useAuth();
   const { ideas } = useIdeas();
+  const { showToast } = useToast();
 
   const [isEditing, setIsEditing] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
+  const [nameError, setNameError] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const analyzed = ideas.filter((idea) => hasAnalysis(idea.aiAnalysis)).length;
+  const categories = new Set(ideas.map((idea) => idea.category).filter(Boolean))
+    .size;
+  const initial = user?.name?.trim()?.charAt(0)?.toUpperCase() || "?";
 
   const startEditing = () => {
     setNameDraft(user?.name || "");
-    setIsEditing(true);
+    setNameError("");
     setError("");
-    setSuccess("");
+    setIsEditing(true);
   };
 
-  const handleSave = () => {
-    if (!nameDraft.trim()) {
-      setError("Name cannot be empty.");
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setNameError("");
+    setError("");
+  };
+
+  const handleSave = async (event) => {
+    event?.preventDefault?.();
+    if (savingProfile) return;
+
+    const name = nameDraft.trim();
+    if (!name) {
+      setNameError("Your display name cannot be empty.");
       return;
     }
-    updateProfile({ name: nameDraft.trim() });
-    setIsEditing(false);
-    setSuccess("Profile updated successfully.");
+
+    setNameError("");
+    setError("");
+    setSavingProfile(true);
+    try {
+      await updateProfile({ name });
+      setIsEditing(false);
+      showToast("Profile updated.", "success");
+    } catch (err) {
+      setError(err.message || "Could not update your profile. Please try again.");
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    showToast("Signed out of your workspace.", "info");
+    navigate("/", { replace: true });
   };
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold tracking-tight text-surface-800 sm:text-3xl dark:text-text-hi">Profile</h1>
-      <p className="mt-1 text-sm text-text-lo dark:text-text-mid">Manage your account details and view platform stats.</p>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-accent">
+          Account
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-fg sm:text-3xl">
+          Profile
+        </h1>
+        <p className="mt-2 text-sm leading-6 text-fg-muted">
+          Manage your account details and review what you have saved.
+        </p>
+      </div>
 
-      <div className="mt-6 rounded-2xl border border-surface-600/80 bg-text-hi p-6 shadow-xs sm:p-8 dark:border-surface-700 dark:bg-surface-800/90">
-        {/* Avatar + identity */}
-        <div className="flex items-center gap-4">
-          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-accent-500 to-accent-600 text-2xl font-bold text-text-hi shadow-md shadow-accent-500/20">
-            {user?.name?.charAt(0).toUpperCase() || "?"}
+      <Card className="mt-6 p-6 sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-2xl font-semibold text-white shadow-card">
+            {initial}
           </span>
-          <div>
-            <h2 className="text-xl font-bold text-surface-800 dark:text-text-hi">{user?.name || "Builder"}</h2>
-            <p className="text-sm text-text-lo dark:text-text-mid">{user?.email || ""}</p>
-          </div>
-        </div>
-
-        {/* Quick stats */}
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="rounded-xl border border-surface-600/60 bg-surface-800/80 p-4 text-center dark:border-surface-700 dark:bg-surface-900/50">
-            <p className="text-2xl font-bold text-accent-500 dark:text-accent-300">{ideas.length}</p>
-            <p className="text-xs font-semibold text-text-lo dark:text-text-mid">Total Ideas Saved</p>
-          </div>
-          <div className="rounded-xl border border-surface-600/60 bg-surface-800/80 p-4 text-center dark:border-surface-700 dark:bg-surface-900/50">
-            <p className="text-2xl font-bold text-accent-500 dark:text-accent-300">
-              {new Set(ideas.map((idea) => idea.category).filter(Boolean)).size}
+          <div className="min-w-0">
+            <h2 className="truncate text-xl font-semibold tracking-tight text-fg">
+              {user?.name || "Builder"}
+            </h2>
+            <p className="mt-0.5 truncate text-sm text-fg-muted">
+              {user?.email || "Signed in"}
             </p>
-            <p className="text-xs font-semibold text-text-lo dark:text-text-mid">Categories Analyzed</p>
           </div>
+          {!isEditing && (
+            <Button
+              variant="outline"
+              onClick={startEditing}
+              className="sm:ml-auto"
+            >
+              <Pencil className="h-4 w-4" aria-hidden="true" />
+              Edit profile
+            </Button>
+          )}
         </div>
 
-        {/* Form actions */}
-        <div className="mt-6 space-y-3">
-          <ErrorState message={error} />
-          <SuccessMessage message={success} />
+        <dl className="mt-6 grid gap-3 rounded-xl border border-border bg-surface-muted p-4 text-sm sm:grid-cols-2">
+          <div className="flex items-start gap-2.5">
+            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden="true" />
+            <div className="min-w-0">
+              <dt className="text-xs font-semibold uppercase tracking-[0.06em] text-fg-subtle">
+                Email
+              </dt>
+              <dd className="mt-0.5 break-all font-medium text-fg">
+                {user?.email || "Not available"}
+              </dd>
+            </div>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden="true" />
+            <div>
+              <dt className="text-xs font-semibold uppercase tracking-[0.06em] text-fg-subtle">
+                Member since
+              </dt>
+              <dd className="mt-0.5 font-medium text-fg">
+                {user?.createdAt ? formatDate(user.createdAt) : "Recently"}
+              </dd>
+            </div>
+          </div>
+        </dl>
 
-          {isEditing ? (
-            <div className="space-y-3">
-              <div>
-                <label htmlFor="name" className="mb-1.5 block text-sm font-semibold text-surface-600 dark:text-surface-600">
-                  Display name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={nameDraft}
-                  onChange={(event) => setNameDraft(event.target.value)}
-                  className={inputStyles}
-                />
+        {isEditing && (
+          <form onSubmit={handleSave} className="mt-6 border-t border-border pt-6" noValidate>
+            <FormField
+              label="Display name"
+              htmlFor="profile-name"
+              required
+              error={nameError}
+              hint="This is the name shown in your workspace."
+            >
+              <input
+                id="profile-name"
+                type="text"
+                value={nameDraft}
+                onChange={(event) => {
+                  setNameDraft(event.target.value);
+                  setNameError("");
+                  setError("");
+                }}
+                className={inputClass}
+                maxLength={80}
+                autoComplete="name"
+                aria-invalid={Boolean(nameError)}
+              />
+            </FormField>
+
+            {error && (
+              <div className="mt-4">
+                <ErrorState message={error} />
               </div>
-              <div className="flex gap-2">
-                <Button onClick={handleSave}>Save</Button>
-                <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button variant="outline" onClick={startEditing} className="flex-1">
-                Edit Profile
+            )}
+
+            <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button variant="outline" onClick={cancelEditing} disabled={savingProfile}>
+                Cancel
               </Button>
-              <Button variant="danger" onClick={handleLogout} className="flex-1">
-                Log Out
+              <Button type="submit" loading={savingProfile}>
+                <Save className="h-4 w-4" aria-hidden="true" />
+                Save changes
               </Button>
             </div>
-          )}
+          </form>
+        )}
+      </Card>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-card">
+          <p className="text-2xl font-semibold tracking-tight text-fg">
+            {ideas.length}
+          </p>
+          <p className="mt-1 text-xs font-medium text-fg-subtle">Ideas saved</p>
+        </div>
+        <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-card">
+          <p className="text-2xl font-semibold tracking-tight text-fg">
+            {analyzed}
+          </p>
+          <p className="mt-1 text-xs font-medium text-fg-subtle">
+            AI analyses
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-card">
+          <p className="text-2xl font-semibold tracking-tight text-fg">
+            {categories}
+          </p>
+          <p className="mt-1 text-xs font-medium text-fg-subtle">Categories</p>
         </div>
       </div>
 
-      {/* Developer Information Card */}
-      <div className="mt-6 rounded-2xl border border-accent-300/60 bg-surface-700/40 p-6 dark:border-accent-600/40 dark:bg-accent-600/30">
-        <div className="flex items-center justify-between">
+      <Card className="mt-4 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+            <Sparkles className="h-5 w-5" aria-hidden="true" />
+          </span>
           <div>
-            <h3 className="text-sm font-bold text-accent-600 dark:text-accent-300">Ideanalyze AI Platform</h3>
-            <p className="mt-1 text-xs text-accent-500 dark:text-accent-300">
-              Designed & Developed by <span className="font-semibold">Sajal Chaulagain aka Mr. Chaule</span>
+            <h2 className="text-sm font-semibold text-fg">Ideanalyze AI</h2>
+            <p className="mt-1 text-xs leading-5 text-fg-muted">
+              Designed &amp; developed by{" "}
+              <span className="font-semibold text-fg">
+                Sajal Chaulagain (Mr. Chaule)
+              </span>
+              .
             </p>
           </div>
-          <a
-            href="https://sajalchaulagain.com.np/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 rounded-xl bg-accent-500 px-3.5 py-2 text-xs font-semibold text-text-hi shadow-xs transition-all hover:bg-accent-500 dark:bg-accent-500 dark:hover:bg-accent-500"
-          >
-            Portfolio 
-          </a>
         </div>
+        <a
+          href="https://sajalchaulagain.com.np/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border-strong bg-surface px-4 text-sm font-semibold text-fg transition-colors hover:bg-surface-muted"
+        >
+          Portfolio
+          <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+        </a>
+      </Card>
+
+      <Card className="mt-4 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-muted text-fg-muted">
+            <UserRound className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div>
+            <h2 className="text-sm font-semibold text-fg">Session</h2>
+            <p className="mt-1 text-xs leading-5 text-fg-muted">
+              Sign out of this device. Your saved ideas stay in your account.
+            </p>
+          </div>
+        </div>
+        <Button variant="danger-outline" onClick={handleLogout} className="shrink-0">
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          Log out
+        </Button>
+      </Card>
+
+      <div className="mt-4 flex items-center gap-2 text-xs text-fg-subtle">
+        <Badge tone="success">Private workspace</Badge>
+        <span>Only you can see your ideas and analyses.</span>
       </div>
     </div>
   );

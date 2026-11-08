@@ -78,7 +78,8 @@ function effectiveAIConfiguration() {
     : /^AIza[0-9A-Za-z_-]+$/.test(apiKey)
     ? "gemini"
     : "not configured";
-  const keySummary = apiKey ? `set (last 4: ${apiKey.slice(-4)})` : "not set";
+  // Never log any part of the key, even in development.
+  const keySummary = apiKey ? "set" : "not set";
   return { provider, baseUrl: safeBaseUrl, model, keySummary, configuredBaseUrl, configuredModel: (process.env.AI_MODEL || "").trim() };
 }
 

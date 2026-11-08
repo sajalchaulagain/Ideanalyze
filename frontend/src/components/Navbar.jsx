@@ -1,15 +1,22 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { LayoutDashboard, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Button from "./Button";
 import ThemeToggle from "./ThemeToggle";
 import Logo from "./Logo";
 
-const linkStyles = ({ isActive }) =>
+const navLinks = [
+  { href: "#features", label: "Features" },
+  { href: "#how-it-works", label: "How it works" },
+  { href: "#example", label: "Example" },
+];
+
+const linkClass = ({ isActive }) =>
   `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
     isActive
-      ? "bg-surface-700 text-accent-500 dark:bg-accent-600/50 dark:text-accent-300"
-      : "text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi"
+      ? "bg-accent-soft text-accent"
+      : "text-fg-muted hover:bg-surface-muted hover:text-fg"
   }`;
 
 export default function Navbar() {
@@ -18,85 +25,123 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-surface-600/80 bg-text-hi/80 backdrop-blur-md transition-colors duration-300 dark:border-surface-700/80 dark:bg-surface-800/80">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <Logo className="h-8 w-8 transition-transform group-hover:scale-105" />
-          <span className="text-lg font-bold tracking-tight text-surface-800 dark:text-text-hi">
-            Ideanalyze <span className="text-accent-500 dark:text-accent-300">AI</span>
+    <header className="sticky top-0 z-40 border-b border-border bg-surface/85 backdrop-blur-md">
+      <nav
+        className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
+        aria-label="Main navigation"
+      >
+        <Link
+          to="/"
+          onClick={() => setMenuOpen(false)}
+          className="flex min-h-11 items-center gap-2.5"
+          aria-label="Ideanalyze AI home"
+        >
+          <Logo className="h-9 w-9" iconClassName="h-4 w-4" />
+          <span className="text-base font-bold tracking-tight text-fg sm:text-lg">
+            Ideanalyze <span className="text-accent">AI</span>
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden items-center gap-1 md:flex">
-          <NavLink to="/" className={linkStyles}>Home</NavLink>
-          <a href="#features" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi">
-            Features
-          </a>
-          <a href="#how-it-works" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi">
-            How It Works
-          </a>
-          <a href="#example" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi">
-            Example
-          </a>
+          <NavLink to="/" className={linkClass} end>
+            Home
+          </NavLink>
+          {navLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg"
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
 
-        {/* Desktop Right Actions (Theme Toggle + Auth) */}
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-2.5 md:flex">
           <ThemeToggle />
           {isAuthenticated ? (
-            <Button onClick={() => navigate("/dashboard")}>Go to Dashboard</Button>
+            <Button onClick={() => navigate("/dashboard")}>
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              Dashboard
+            </Button>
           ) : (
             <>
-              <Button variant="ghost" onClick={() => navigate("/login")}>Log in</Button>
-              <Button onClick={() => navigate("/signup")}>Sign Up</Button>
+              <Button variant="ghost" onClick={() => navigate("/login")}>
+                Log in
+              </Button>
+              <Button onClick={() => navigate("/signup")}>Sign up</Button>
             </>
           )}
         </div>
 
-        {/* Mobile menu toggle & ThemeToggle */}
         <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
           <button
+            type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className="rounded-lg p-2 text-text-mid hover:bg-surface-700 dark:text-surface-600 dark:hover:bg-surface-700"
-            aria-label="Toggle menu"
+            className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-surface text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
           >
-            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              {menuOpen ? (
-                <path strokeLinecap="round" d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
-              )}
-            </svg>
+            {menuOpen ? (
+              <X className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            )}
           </button>
         </div>
       </nav>
 
-      {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className="border-t border-surface-600 bg-text-hi px-4 pb-4 pt-2 md:hidden dark:border-surface-700 dark:bg-surface-800">
+        <div
+          id="mobile-navigation"
+          className="border-t border-border bg-surface px-4 pb-5 pt-3 md:hidden"
+        >
           <div className="flex flex-col gap-1">
-            <NavLink to="/" className={linkStyles} onClick={() => setMenuOpen(false)}>Home</NavLink>
-            <a href="#features" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 dark:text-surface-600 dark:hover:bg-surface-700" onClick={() => setMenuOpen(false)}>
-              Features
-            </a>
-            <a href="#how-it-works" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 dark:text-surface-600 dark:hover:bg-surface-700" onClick={() => setMenuOpen(false)}>
-              How It Works
-            </a>
-            <a href="#example" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 dark:text-surface-600 dark:hover:bg-surface-700" onClick={() => setMenuOpen(false)}>
-              Example
-            </a>
+            <NavLink
+              to="/"
+              className={linkClass}
+              end
+              onClick={() => setMenuOpen(false)}
+            >
+              Home
+            </NavLink>
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg"
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
-          <div className="mt-3 flex gap-2">
+          <div className="mt-4 flex flex-col gap-2">
             {isAuthenticated ? (
-              <Button onClick={() => navigate("/dashboard")} className="flex-1">Go to Dashboard</Button>
+              <Button
+                onClick={() => navigate("/dashboard")}
+                className="w-full"
+              >
+                <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+                Go to dashboard
+              </Button>
             ) : (
               <>
-                <Button variant="outline" onClick={() => navigate("/login")} className="flex-1">Log in</Button>
-                <Button onClick={() => navigate("/signup")} className="flex-1">Sign Up</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/login")}
+                  className="w-full"
+                >
+                  Log in
+                </Button>
+                <Button
+                  onClick={() => navigate("/signup")}
+                  className="w-full"
+                >
+                  Sign up
+                </Button>
               </>
             )}
           </div>

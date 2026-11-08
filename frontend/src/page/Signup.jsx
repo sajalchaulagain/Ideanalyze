@@ -1,18 +1,257 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 import ErrorState from "../components/ErrorState";
+import FormField from "../components/ui/FormField";
+import { inputClass } from "../components/ui/formStyles";
 
-const input = "w-full rounded-md border border-surface-600 bg-surface-700 px-3 py-2.5 text-sm text-text-hi placeholder:text-text-lo focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30";
-const scorePassword = (value) => [value.length >= 8, /[A-Z]/.test(value) && /[a-z]/.test(value), /\d/.test(value), /[^A-Za-z0-9]/.test(value)].filter(Boolean).length;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
 
-function PasswordField({ name, label, value, onChange, show, onToggle }) { return <label className="block text-sm font-medium">{label}<div className="relative mt-2"><input name={name} type={show ? "text" : "password"} autoComplete="new-password" value={value} onChange={onChange} className={`${input} pr-12`} placeholder="At least 8 characters" /><button type="button" aria-label={show ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`} aria-pressed={show} onClick={onToggle} className="absolute right-1 top-1/2 min-h-10 min-w-10 -translate-y-1/2 text-xs text-text-mid hover:text-accent-300">{show ? "Hide" : "Show"}</button></div><span className="mt-1 block text-xs text-text-lo">Minimum 8 characters.</span></label>; }
+function scorePassword(value) {
+  return [
+    value.length >= 8,
+    /[A-Z]/.test(value) && /[a-z]/.test(value),
+    /\d/.test(value),
+    /[^A-Za-z0-9]/.test(value),
+  ].filter(Boolean).length;
+}
+
+function PasswordField({
+  id,
+  name,
+  label,
+  value,
+  onChange,
+  show,
+  onToggle,
+  error,
+  hint,
+}) {
+  return (
+    <FormField label={label} htmlFor={id} required error={error} hint={hint}>
+      <div className="relative">
+        <input
+          id={id}
+          name={name}
+          type={show ? "text" : "password"}
+          autoComplete="new-password"
+          value={value}
+          onChange={onChange}
+          className={`${inputClass} pr-12`}
+          placeholder="At least 8 characters"
+          aria-invalid={Boolean(error)}
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          className="absolute right-0.5 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-fg-subtle transition-colors hover:bg-surface-muted hover:text-fg"
+          aria-label={show ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
+          aria-pressed={show}
+        >
+          {show ? (
+            <EyeOff className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <Eye className="h-4 w-4" aria-hidden="true" />
+          )}
+        </button>
+      </div>
+    </FormField>
+  );
+}
 
 export default function Signup() {
-  const navigate = useNavigate(); const { signup, authLoading } = useAuth(); const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" }); const [error, setError] = useState(""); const [emailError, setEmailError] = useState(""); const [show, setShow] = useState({ password: false, confirmPassword: false }); const [touched, setTouched] = useState({});
-  const update = ({ target: { name, value } }) => { setForm((current) => ({ ...current, [name]: value })); if (name === "email") setEmailError(""); };
-  const score = scorePassword(form.password); const labels = ["", "Weak", "Fair", "Good", "Strong"]; const strengthColor = score < 2 ? "bg-danger-500" : score < 4 ? "bg-warn-500" : "bg-ok-500";
-  const submit = async (event) => { event.preventDefault(); setError(""); setEmailError(""); if (!form.name.trim() || !form.email.trim() || !form.password) return setError("Please fill in your name, email, and password."); if (form.password.length < 8) return setError("Password must be at least 8 characters."); if (form.password !== form.confirmPassword) return setError("Passwords do not match."); try { await signup(form.name.trim(), form.email.trim(), form.password); navigate("/dashboard", { replace: true }); } catch (err) { if (err.code === "EMAIL_TAKEN" || err.field === "email") setEmailError(err.message || "That email is already registered."); else setError(err.message || "Signup failed. Please try again."); } };
-  return <div><p className="text-xs font-semibold uppercase tracking-[.08em] text-accent-300">Start building</p><h1 className="mt-3 text-3xl font-semibold">Create your workspace</h1><p className="mt-2 text-sm leading-6 text-text-mid">Keep your ideas, analysis, and next steps together.</p><form onSubmit={submit} className="mt-8 space-y-5"><ErrorState message={error} /><label className="block text-sm font-medium">Name<input name="name" type="text" autoComplete="name" value={form.name} onChange={update} onBlur={() => setTouched((v) => ({ ...v, name: true }))} className={`${input} mt-2`} placeholder="Your name" /></label><label className="block text-sm font-medium">Email<input name="email" type="email" autoComplete="email" value={form.email} onChange={update} onBlur={() => setTouched((v) => ({ ...v, email: true }))} className={`${input} mt-2 ${emailError ? "border-danger-500" : ""}`} placeholder="you@example.com" />{emailError ? <span className="mt-1 block text-xs text-danger-500">{emailError}</span> : touched.email && form.email && !/^\S+@\S+\.\S+$/.test(form.email) ? <span className="mt-1 block text-xs text-danger-500">Use a valid email format.</span> : <span className="mt-1 block text-xs text-text-lo">We will use this to sign you in.</span>}</label><PasswordField name="password" label="Password" value={form.password} onChange={update} show={show.password} onToggle={() => setShow((v) => ({ ...v, password: !v.password }))} /><div><div className="mb-2 grid grid-cols-4 gap-1" aria-label={`Password strength: ${labels[score] || ""}`}>{[0, 1, 2, 3].map((segment) => <span key={segment} className={`h-1 rounded-full ${segment < score ? strengthColor : "bg-surface-600"}`} />)}</div>{form.password && <p className={`text-xs ${score < 2 ? "text-danger-500" : score < 4 ? "text-warn-500" : "text-ok-500"}`}>{labels[score]}</p>}</div><PasswordField name="confirmPassword" label="Confirm password" value={form.confirmPassword} onChange={update} show={show.confirmPassword} onToggle={() => setShow((v) => ({ ...v, confirmPassword: !v.confirmPassword }))} /><Button type="submit" loading={authLoading} className="w-full" size="lg">Create account</Button></form><p className="mt-8 text-center text-sm text-text-mid">Already have an account? <Link to="/login" className="font-semibold text-accent-300 hover:text-text-hi">Log in</Link></p></div>;
+  const navigate = useNavigate();
+  const { signup, authLoading, isAuthenticated } = useAuth();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [show, setShow] = useState({ password: false, confirmPassword: false });
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  const update = (event) => {
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+    setErrors((current) => ({ ...current, [name]: "" }));
+    setServerError("");
+  };
+
+  const score = scorePassword(form.password);
+  const strengthLabel = strengthLabels[score] || "";
+  const strengthColor =
+    score < 2 ? "bg-danger" : score < 4 ? "bg-warning" : "bg-success";
+
+  const validate = () => {
+    const next = {};
+    if (!form.name.trim()) next.name = "Enter your name.";
+    if (!form.email.trim()) next.email = "Enter your email address.";
+    else if (!emailPattern.test(form.email.trim()))
+      next.email = "Enter a valid email address.";
+    if (!form.password) next.password = "Create a password.";
+    else if (form.password.length < 8)
+      next.password = "Use at least 8 characters.";
+    else if (!/[A-Za-z]/.test(form.password) || !/\d/.test(form.password))
+      next.password = "Include at least one letter and one number.";
+    if (form.password !== form.confirmPassword)
+      next.confirmPassword = "Passwords do not match.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setServerError("");
+    if (!validate()) return;
+
+    try {
+      await signup(form.name.trim(), form.email.trim(), form.password);
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      if (error.code === "EMAIL_TAKEN" || error.field === "email") {
+        setErrors((current) => ({
+          ...current,
+          email: error.message || "That email is already registered.",
+        }));
+      } else if (error.field === "password") {
+        setErrors((current) => ({
+          ...current,
+          password: error.message || "Choose a stronger password.",
+        }));
+      } else {
+        setServerError(error.message || "Signup failed. Please try again.");
+      }
+    }
+  };
+
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-[0.1em] text-accent">
+        Start building
+      </p>
+      <h1 className="mt-3 text-2xl font-semibold tracking-tight text-fg sm:text-3xl">
+        Create your workspace
+      </h1>
+      <p className="mt-2 text-sm leading-6 text-fg-muted">
+        Keep your ideas, analysis, and next steps together.
+      </p>
+
+      <form onSubmit={submit} className="mt-8 space-y-5" noValidate>
+        {serverError && <ErrorState message={serverError} />}
+
+        <FormField label="Name" htmlFor="signup-name" required error={errors.name}>
+          <input
+            id="signup-name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            value={form.name}
+            onChange={update}
+            className={inputClass}
+            placeholder="Your name"
+            maxLength={80}
+            aria-invalid={Boolean(errors.name)}
+          />
+        </FormField>
+
+        <FormField label="Email" htmlFor="signup-email" required error={errors.email}>
+          <input
+            id="signup-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={form.email}
+            onChange={update}
+            className={inputClass}
+            placeholder="you@example.com"
+            aria-invalid={Boolean(errors.email)}
+          />
+        </FormField>
+
+        <div>
+          <PasswordField
+            id="signup-password"
+            name="password"
+            label="Password"
+            value={form.password}
+            onChange={update}
+            show={show.password}
+            onToggle={() =>
+              setShow((current) => ({
+                ...current,
+                password: !current.password,
+              }))
+            }
+            error={errors.password}
+            hint="At least 8 characters with a letter and a number."
+          />
+          <div className="mt-2">
+            <div
+              className="grid grid-cols-4 gap-1"
+              role="progressbar"
+              aria-label="Password strength"
+              aria-valuemin={0}
+              aria-valuemax={4}
+              aria-valuenow={score}
+            >
+              {[0, 1, 2, 3].map((segment) => (
+                <span
+                  key={segment}
+                  className={`h-1 rounded-full ${
+                    segment < score ? strengthColor : "bg-surface-strong"
+                  }`}
+                />
+              ))}
+            </div>
+            {form.password && (
+              <p className="mt-1.5 text-xs font-medium text-fg-muted">
+                Strength: {strengthLabel}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <PasswordField
+          id="signup-confirm-password"
+          name="confirmPassword"
+          label="Confirm password"
+          value={form.confirmPassword}
+          onChange={update}
+          show={show.confirmPassword}
+          onToggle={() =>
+            setShow((current) => ({
+              ...current,
+              confirmPassword: !current.confirmPassword,
+            }))
+          }
+          error={errors.confirmPassword}
+        />
+
+        <Button type="submit" loading={authLoading} className="w-full" size="lg">
+          <UserPlus className="h-4 w-4" aria-hidden="true" />
+          Create account
+        </Button>
+      </form>
+
+      <p className="mt-8 text-center text-sm text-fg-muted">
+        Already have an account?{" "}
+        <Link
+          to="/login"
+          className="font-semibold text-accent transition-colors hover:text-accent/80"
+        >
+          Log in
+        </Link>
+      </p>
+    </div>
+  );
 }

@@ -22,6 +22,47 @@ test("parseAIResponse extracts JSON from surrounding prose", () => {
   assert.deepEqual(parseAIResponse(`Here is the analysis:\n${JSON.stringify(analysis)}\nHope this helps.`), analysis);
 });
 
+test("parseAIResponse normalizes partial responses and string lists", () => {
+  const result = parseAIResponse(
+    JSON.stringify({
+      problem: "  A problem  ",
+      features: "One, Two\n3) Three",
+      techStack: "React, Node.js",
+    })
+  );
+
+  assert.deepEqual(result, {
+    problem: "A problem",
+    solution: "",
+    targetUsers: "",
+    features: ["One", "Two", "Three"],
+    techStack: ["React", "Node.js"],
+    challenges: "",
+    futureImprovements: "",
+  });
+});
+
+test("parseAIResponse clamps long text and list values to schema limits", () => {
+  const result = parseAIResponse(
+    JSON.stringify({
+      problem: "p".repeat(3000),
+      features: ["f".repeat(120), "ok"],
+      techStack: Array.from({ length: 15 }, (_, index) => `tech-${index}`),
+    })
+  );
+
+  assert.equal(result.problem.length, 2000);
+  assert.equal(result.features[0].length, 80);
+  assert.equal(result.techStack.length, 10);
+});
+
+test("parseAIResponse rejects an analysis with no usable content", () => {
+  assert.throws(
+    () => parseAIResponse(JSON.stringify({ problem: "", features: [] })),
+    /empty analysis/
+  );
+});
+
 function providerError(status, message, headers = {}) {
   const error = new Error("provider failure");
   error.response = { status, data: { error: { message } }, headers };

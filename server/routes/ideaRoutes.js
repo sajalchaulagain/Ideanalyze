@@ -10,6 +10,7 @@ const {
 const { protect } = require("../middleware/authMiddleware");
 const { validate } = require("../middleware/validate");
 const { userOrIpKey } = require("../utils/rateLimitKeys");
+const { createRateLimitHandler } = require("../middleware/rateLimitHandler");
 const { createIdeaSchema, updateIdeaSchema } = require("../validation/schemas");
 
 const router = express.Router();
@@ -21,6 +22,10 @@ const ideaWriteLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: Number(process.env.IDEA_WRITE_LIMIT || 60),
   keyGenerator: userOrIpKey,
+  handler: createRateLimitHandler({
+    code: "RATE_LIMITED",
+    message: "Too many changes in a short time. Please try again soon.",
+  }),
 });
 
 router.get("/", getIdeas); // GET    /api/ideas

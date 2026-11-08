@@ -129,7 +129,7 @@ function buildPrompt({ title, description, category, targetAudience }) {
 
 Idea title: ${title}
 Description: ${description}
-Category: ${category || "General"}
+Category: ${category || "Other"}
 Target audience: ${targetAudience || "Not specified"}`;
 }
 
@@ -154,6 +154,50 @@ function extractBalancedObject(text) {
   return null;
 }
 
+const TEXT_LIMIT = 2000;
+const LIST_LIMIT = 10;
+const LIST_ITEM_LIMIT = 80;
+
+function normalizeText(value) {
+  if (typeof value === "string") return value.trim().slice(0, TEXT_LIMIT);
+  if (Array.isArray(value)) {
+    return value
+      .filter((item) => typeof item === "string")
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .join("\n")
+      .slice(0, TEXT_LIMIT);
+  }
+  return "";
+}
+
+function normalizeList(value) {
+  const parts = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? value.split(/\r?\n|,/)
+      : [];
+
+  return parts
+    .filter((item) => typeof item === "string")
+    .map((item) =>
+      item
+        .trim()
+        .replace(/^[-*•]\s*/, "")
+        .replace(/^\d+[.)]\s*/, "")
+        .trim()
+        .slice(0, LIST_ITEM_LIMIT)
+    )
+    .filter(Boolean)
+    .slice(0, LIST_LIMIT);
+}
+
+/*
+  Models occasionally omit a key or return a list as a comma-separated
+  string. Normalizing the shape (instead of rejecting the whole response)
+  keeps a mostly-useful analysis usable, while clamping values so stored
+  data always passes the API validation schema.
+*/
 function parseAIResponse(rawText) {
   if (!rawText || typeof rawText !== "string") {
     throw new Error("The AI returned an empty response. Please try again.");
@@ -176,24 +220,34 @@ function parseAIResponse(rawText) {
       throw new Error("The AI returned an unreadable response. Please try again.", { cause: error });
     }
   }
-  for (const key of REQUIRED_KEYS) {
-    const value = parsed[key];
-    const isTextKey = key !== "features" && key !== "techStack";
-    const valid = isTextKey ? typeof value === "string" : Array.isArray(value);
-    if (!valid) {
-      console.error(colors.yellow(`AI response missing/invalid key "${key}"`));
-      throw new Error("The AI returned an incomplete analysis. Please try again.");
-    }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    console.error(colors.yellow("AI returned a non-object JSON payload"));
+    throw new Error("The AI returned an unreadable response. Please try again.");
   }
-  return {
-    problem: parsed.problem,
-    solution: parsed.solution,
-    targetUsers: parsed.targetUsers,
-    features: parsed.features,
-    techStack: parsed.techStack,
-    challenges: parsed.challenges,
-    futureImprovements: parsed.futureImprovements,
+
+  const normalized = {
+    problem: normalizeText(parsed.problem),
+    solution: normalizeText(parsed.solution),
+    targetUsers: normalizeText(parsed.targetUsers),
+    features: normalizeList(parsed.features),
+    techStack: normalizeList(parsed.techStack),
+    challenges: normalizeText(parsed.challenges),
+    futureImprovements: normalizeText(parsed.futureImprovements),
   };
+
+  const hasContent = REQUIRED_KEYS.some((key) => normalized[key].length > 0);
+  if (!hasContent) {
+    console.error(colors.yellow("AI returned an empty analysis payload"));
+    throw new Error("The AI returned an empty analysis. Please try again.");
+  }
+
+  const missing = REQUIRED_KEYS.filter((key) => normalized[key].length === 0);
+  if (missing.length) {
+    console.warn(colors.yellow(`AI response missing content for: ${missing.join(", ")}`));
+  }
+
+  return normalized;
 }
 
 async function sendGeminiRequest(model, apiKey, promptText, timeout) {

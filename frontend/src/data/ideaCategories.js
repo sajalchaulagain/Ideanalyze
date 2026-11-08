@@ -1,3 +1,5 @@
+export const DEFAULT_CATEGORY = "Other";
+
 export const ideaCategories = [
   "AI / Machine Learning",
   "EdTech",

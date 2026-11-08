@@ -16,9 +16,14 @@ Create a Node web service from this repository using the checked-in
 - `SUPABASE_SERVICE_ROLE_KEY`: the service-role key; keep it server-side.
 - `JWT_SECRET`: a long random signing secret.
 - `CLIENT_URL`: the Netlify site URL, without a trailing slash.
-- `AI_API_KEY` and optional AI settings when analysis is enabled.
+- `AI_API_KEY` and optional AI settings when analysis is enabled:
+  - `AI_MODEL` (defaults to `gemini-flash-lite-latest` for Gemini).
+  - `AI_BASE_URL` and `AI_MODEL` when using an OpenAI-compatible provider.
+  - `AI_MODELS` for a comma-separated fallback list.
+  - `AI_RATE_LIMIT_MAX` and `IDEA_WRITE_LIMIT` to tune hourly limits.
 
-Render supplies `PORT`. The service uses `/api/health` for health checks.
+Render supplies `PORT`. The service uses `/api/health` for health checks. The
+API never logs API keys; provider logs include only the model and endpoint.
 
 ## 3. Netlify frontend
 
@@ -28,6 +33,21 @@ JWT signing secrets in Netlify or any `VITE_*` variable.
 
 Deploy the `frontend/` directory with the checked-in `netlify.toml`. It sets
 Node 22, the Vite build command, SPA fallback, and cache headers.
+
+## Local checks
+
+```bash
+npm --prefix frontend run lint
+npm --prefix frontend run build
+npm --prefix server test
+```
+
+Integration tests create and delete real records, so only run them against a
+dedicated test project:
+
+```bash
+npm --prefix server run test:integration
+```
 
 ## Troubleshooting
 

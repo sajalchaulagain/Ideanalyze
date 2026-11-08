@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Lightbulb } from "lucide-react";
 import Button from "./Button";
 
 export default function EmptyState({
@@ -7,17 +8,18 @@ export default function EmptyState({
   actionLabel,
   actionTo,
   onAction,
+  icon: Icon = Lightbulb,
+  className = "",
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-600 bg-surface-700 px-6 py-14 text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-600">
-        <svg className="h-7 w-7 text-accent-500 dark:text-accent-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M20 12.5V6.8A1.8 1.8 0 0018.2 5H5.8A1.8 1.8 0 004 6.8v10.4a1.8 1.8 0 001.8 1.8h12.4a1.8 1.8 0 001.8-1.8V12.5" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 7l8 6 8-6" />
-        </svg>
+    <div
+      className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-border-strong bg-surface px-6 py-14 text-center ${className}`}
+    >
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft">
+        <Icon className="h-7 w-7 text-accent" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-text-hi">{title}</h3>
-      <p className="mt-1 max-w-sm text-sm text-text-mid">{message}</p>
+      <h2 className="text-lg font-semibold text-fg">{title}</h2>
+      <p className="mt-1.5 max-w-sm text-sm leading-6 text-fg-muted">{message}</p>
       {actionLabel && actionTo && (
         <Link to={actionTo} className="mt-5">
           <Button>{actionLabel}</Button>

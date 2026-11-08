@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { Sparkles } from "lucide-react";
 
-export default function Logo({ className = "h-8 w-8", imageClassName = "", ...props }) {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) {
-    return <span className={`${className} inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-accent-500 to-accent-600 text-xs font-bold text-text-hi`} aria-label="Ideanalyze AI">IA</span>;
-  }
-
-  return <img src="/logo.svg" alt="Ideanalyze AI" className={`${className} ${imageClassName}`} onError={() => setFailed(true)} {...props} />;
+export default function Logo({
+  className = "h-8 w-8",
+  iconClassName = "h-4 w-4",
+}) {
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm ${className}`}
+      aria-hidden="true"
+    >
+      <Sparkles className={iconClassName} strokeWidth={2.2} />
+    </span>
+  );
 }

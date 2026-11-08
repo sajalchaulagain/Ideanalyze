@@ -2,25 +2,38 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext(null);
 
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => {
+function getInitialTheme() {
+  try {
     const saved = localStorage.getItem("theme");
-    if (saved) return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
+    if (saved === "light" || saved === "dark") return saved;
+  } catch {
+    // Storage can be unavailable in private browsing; fall back to light.
+  }
+  return "light";
+}
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
+    root.classList.toggle("dark", theme === "dark");
+    root.style.colorScheme = theme;
+
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      // Persisting the preference is best-effort.
     }
-    localStorage.setItem("theme", theme);
+
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) {
+      themeColor.setAttribute("content", theme === "dark" ? "#0b0d12" : "#f7f8fc");
+    }
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    setTheme((current) => (current === "dark" ? "light" : "dark"));
   };
 
   return (
@@ -31,5 +44,9 @@ export function ThemeProvider({ children }) {
 }
 
 export function useTheme() {
-  return useContext(ThemeContext);
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used inside a ThemeProvider");
+  }
+  return context;
 }
