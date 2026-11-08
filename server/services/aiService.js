@@ -17,12 +17,25 @@ function notConfigured(detail) {
   return error;
 }
 
-function providerFailure(code, statusCode, message, providerStatus) {
+function providerHint(baseUrl, model) {
+  let base = "gemini";
+  if (baseUrl) {
+    try {
+      base = new URL(baseUrl).hostname;
+    } catch {
+      base = "openai-compatible provider";
+    }
+  }
+  return `model: ${model}; base: ${base}`;
+}
+
+function providerFailure(code, statusCode, message, providerStatus, hint) {
   const error = new Error(message);
   error.statusCode = statusCode;
   error.code = code;
   error.isOperational = true;
   if (Number.isInteger(providerStatus)) error.providerStatus = providerStatus;
+  if (hint) error.hint = hint;
   return error;
 }
 
@@ -172,19 +185,20 @@ async function analyzeIdea({ title, description, category, targetAudience }) {
     if (error.statusCode === 503 || error.message.startsWith("The AI returned")) throw error;
     const providerMessage = error.response?.data?.error?.message || error.message;
     const providerStatus = error.response?.status;
+    const hint = providerHint(baseUrl, model);
     const timedOut = error.code === "ECONNABORTED" || error.code === "ETIMEDOUT" || (!error.response && Boolean(error.request));
     if (timedOut) {
       console.error(colors.red("AI provider request failed [TIMEOUT]"));
-      throw providerFailure("AI_TIMEOUT", 504, "The AI provider did not respond in time.");
+      throw providerFailure("AI_TIMEOUT", 504, "The AI provider did not respond in time.", undefined, hint);
     }
     console.error(colors.red(`AI provider request failed [${providerStatus || "ERROR"}]`));
-    if (providerStatus === 401 || providerStatus === 403) throw providerFailure("AI_AUTH_FAILED", 502, "The AI provider rejected our credentials.", providerStatus);
-    if (providerStatus === 402) throw providerFailure("AI_QUOTA_EXCEEDED", 502, "The AI provider account has no credit.", providerStatus);
+    if (providerStatus === 401 || providerStatus === 403) throw providerFailure("AI_AUTH_FAILED", 502, "The AI provider rejected our credentials.", providerStatus, hint);
+    if (providerStatus === 402) throw providerFailure("AI_QUOTA_EXCEEDED", 502, "The AI provider account has no credit.", providerStatus, hint);
     if ((providerStatus === 400 || providerStatus === 404) && typeof providerMessage === "string" && /model/i.test(providerMessage)) {
-      throw providerFailure("AI_MODEL_NOT_FOUND", 502, "The configured AI model is not available from the provider.", providerStatus);
+      throw providerFailure("AI_MODEL_NOT_FOUND", 502, "The configured AI model is not available from the provider.", providerStatus, hint);
     }
-    if (providerStatus === 429) throw providerFailure("AI_RATE_LIMITED", 429, "The AI provider is rate limiting us. Try again shortly.", providerStatus);
-    throw providerFailure("AI_PROVIDER_FAILED", 502, "The AI provider request failed. Please try again in a moment.", providerStatus);
+    if (providerStatus === 429) throw providerFailure("AI_RATE_LIMITED", 429, "The AI provider is rate limiting us. Try again shortly.", providerStatus, hint);
+    throw providerFailure("AI_PROVIDER_FAILED", 502, "The AI provider request failed. Please try again in a moment.", providerStatus, hint);
   }
 }
 

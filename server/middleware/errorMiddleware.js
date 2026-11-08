@@ -1,12 +1,14 @@
 const { AppError } = require("../utils/AppError");
 
-function envelope(code, message, field = null, debug) {
+function envelope(code, message, field = null, debug, providerStatus, hint) {
   return {
     success: false,
     code,
     message,
     ...(field ? { field } : {}),
     ...(debug ? { debug } : {}),
+    ...(Number.isInteger(providerStatus) ? { providerStatus } : {}),
+    ...(hint ? { hint } : {}),
   };
 }
 
@@ -15,7 +17,16 @@ function errorHandler(err, req, res, next) {
   void next;
 
   if (err instanceof AppError || err.isOperational) {
-    return res.status(err.statusCode || 500).json(envelope(err.code, err.message, err.field));
+    return res.status(err.statusCode || 500).json(
+      envelope(
+        err.code,
+        err.message,
+        err.field,
+        undefined,
+        process.env.NODE_ENV !== "production" ? err.providerStatus : undefined,
+        process.env.NODE_ENV === "production" ? err.hint : undefined
+      )
+    );
   }
 
   if (err.name === "ZodError" || Array.isArray(err.issues)) {
