@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Button from "./Button";
 import ThemeToggle from "./ThemeToggle";
+import Logo from "./Logo";
 
 const linkStyles = ({ isActive }) =>
   `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
@@ -21,9 +22,7 @@ export default function Navbar() {
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-accent-500 to-accent-500 text-base font-bold text-text-hi shadow-md shadow-accent-500/25 transition-transform duration-300 group-hover:scale-105">
-            IA
-          </span>
+          <Logo className="h-8 w-8 transition-transform group-hover:scale-105" />
           <span className="text-lg font-bold tracking-tight text-surface-800 dark:text-text-hi">
             Ideanalyze <span className="text-accent-500 dark:text-accent-300">AI</span>
           </span>

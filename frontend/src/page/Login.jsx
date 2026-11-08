@@ -4,90 +4,12 @@ import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 import ErrorState from "../components/ErrorState";
 
-const inputStyles =
-  "w-full rounded-xl border border-surface-600 bg-text-hi px-3.5 py-2.5 text-sm text-surface-800 placeholder:text-text-mid focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-surface-600 transition-colors dark:border-surface-600 dark:bg-surface-800 dark:text-surface-700 dark:placeholder:text-text-lo";
+const input = "w-full rounded-md border border-surface-600 bg-surface-700 px-3 py-2.5 text-sm text-text-hi placeholder:text-text-lo focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { login, authLoading } = useAuth();
-
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-
-  const redirectTo = location.state?.from || "/dashboard";
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError("");
-
-    if (!form.email.trim() || !form.password) {
-      setError("Please enter both your email and password.");
-      return;
-    }
-
-    try {
-      await login(form.email.trim(), form.password);
-      navigate(redirectTo, { replace: true });
-    } catch (err) {
-      setError(err.message || "Login failed. Please check your credentials.");
-    }
-  };
-
-  return (
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight text-surface-800 dark:text-text-hi">Welcome back</h1>
-      <p className="mt-1 text-sm text-text-lo dark:text-text-mid">Log in to continue analyzing your ideas with Ideanalyze AI.</p>
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <ErrorState message={error} />
-
-        <div>
-          <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-surface-600 dark:text-surface-600">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="you@example.com"
-            className={inputStyles}
-          />
-        </div>
-
-        <div>
-          <div className="mb-1.5 flex items-center justify-between">
-            <label htmlFor="password" className="mb-1.5 text-sm font-semibold text-surface-600 dark:text-surface-600">Password</label>
-          </div>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢"
-            className={inputStyles}
-          />
-        </div>
-
-        <Button type="submit" loading={authLoading} className="w-full" size="lg">
-          Log in
-        </Button>
-      </form>
-
-      <p className="mt-6 text-center text-sm text-text-lo dark:text-text-mid">
-        Don&apos;t have an account?{" "}
-        <Link to="/signup" className="font-semibold text-accent-500 hover:text-accent-500 dark:text-accent-300">
-          Sign up
-        </Link>
-      </p>
-    </div>
-  );
+  const navigate = useNavigate(); const location = useLocation(); const { login, authLoading } = useAuth();
+  const [form, setForm] = useState({ email: "", password: "" }); const [error, setError] = useState(""); const [showPassword, setShowPassword] = useState(false); const [touched, setTouched] = useState({});
+  const update = ({ target: { name, value } }) => setForm((current) => ({ ...current, [name]: value }));
+  const submit = async (event) => { event.preventDefault(); setError(""); if (!form.email.trim() || !form.password) { setError("Please enter both your email and password."); return; } try { await login(form.email.trim(), form.password); navigate(location.state?.from || "/dashboard", { replace: true }); } catch (err) { setError(err.message || "Login failed. Please check your credentials."); } };
+  return <div><p className="text-xs font-semibold uppercase tracking-[.08em] text-accent-300">Welcome back</p><h1 className="mt-3 text-3xl font-semibold">Log in to your workspace</h1><p className="mt-2 text-sm leading-6 text-text-mid">Continue turning ideas into plans.</p><form onSubmit={submit} className="mt-8 space-y-5"><ErrorState message={error} /><label className="block text-sm font-medium">Email<input name="email" type="email" autoComplete="email" value={form.email} onChange={update} onBlur={() => setTouched((v) => ({ ...v, email: true }))} className={`${input} mt-2`} placeholder="you@example.com" aria-describedby="email-hint" />{touched.email && form.email && !/^\S+@\S+\.\S+$/.test(form.email) ? <span className="mt-1 block text-xs text-danger-500">Use a valid email format.</span> : <span id="email-hint" className="mt-1 block text-xs text-text-lo">Use the email attached to your account.</span>}</label><label className="block text-sm font-medium">Password<div className="relative mt-2"><input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={form.password} onChange={update} className={`${input} pr-12`} placeholder="Your password" /><button type="button" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword((v) => !v)} className="absolute right-1 top-1/2 min-h-10 min-w-10 -translate-y-1/2 text-xs text-text-mid hover:text-accent-300">{showPassword ? "Hide" : "Show"}</button></div><span className="mt-1 block text-xs text-text-lo">At least 8 characters.</span></label><Button type="submit" loading={authLoading} className="w-full" size="lg">Log in</Button></form><p className="mt-8 text-center text-sm text-text-mid">New here? <Link to="/signup" className="font-semibold text-accent-300 hover:text-text-hi">Create an account</Link></p></div>;
 }
