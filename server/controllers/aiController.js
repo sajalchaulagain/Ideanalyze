@@ -34,14 +34,7 @@ async function analyze(req, res, next) {
     res.json({ success: true, message: "Analysis generated successfully", data: { analysis } });
   } catch (error) {
     // 503 from the service means "AI not configured" — keep that status code.
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({
-        success: false,
-        code: error.code,
-        message: error.message,
-      });
-    }
-    next(error);
+    return next(error);
   }
 }
 
