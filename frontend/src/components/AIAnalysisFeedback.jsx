@@ -13,14 +13,14 @@ export default function AIAnalysisFeedback({ error, remaining, onRetry, retryCoo
   return (
     <>
       {Number.isFinite(remaining) && remaining <= 2 && (
-        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400" role="status">
+        <p className="mb-3 text-xs text-text-lo dark:text-text-mid" role="status">
           AI availability is low: {remaining} free request{remaining === 1 ? "" : "s"} remaining today.
         </p>
       )}
 
       {error?.code === "AI_RATE_LIMITED" && (
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
-          <span>The AI providers are busy. Retrying in a moment…</span>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warn-500 bg-warn-500/20 px-4 py-3 text-sm text-warn-500">
+          <span>The AI providers are busy. Retrying in a momentÃ¢â‚¬Â¦</span>
           <Button variant="outline" size="sm" disabled={retryCooldown > 0} onClick={onRetry}>
             {retryCooldown > 0 ? `Retry in ${retryCooldown}s` : "Retry now"}
           </Button>
@@ -28,7 +28,7 @@ export default function AIAnalysisFeedback({ error, remaining, onRetry, retryCoo
       )}
 
       {error?.code === "AI_DAILY_LIMIT" && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
+        <div className="mb-4 rounded-xl border border-danger-500 bg-danger-500 px-4 py-3 text-sm text-danger-500 dark:border-danger-500/60 dark:bg-danger-500/30 dark:text-danger-500">
           Today&apos;s free AI allowance is used up. Resets at {formatResetTime(error.resetsAt)}.
         </div>
       )}

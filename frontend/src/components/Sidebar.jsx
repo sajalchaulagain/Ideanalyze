@@ -5,8 +5,8 @@ import ThemeToggle from "./ThemeToggle";
 const linkStyles = ({ isActive }) =>
   `flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ${
     isActive
-      ? "bg-indigo-50 text-indigo-700 shadow-xs dark:bg-indigo-950/60 dark:text-indigo-300"
-      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/80 dark:hover:text-slate-200"
+      ? "bg-surface-700 text-accent-500 shadow-xs dark:bg-accent-600/60 dark:text-accent-300"
+      : "text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-text-mid dark:hover:bg-surface-700/80 dark:hover:text-surface-600"
   }`;
 
 const icons = {
@@ -43,15 +43,15 @@ export default function Sidebar({ onNavigate }) {
   };
 
   return (
-    <div className="flex h-full flex-col bg-white transition-colors duration-300 dark:bg-slate-900/90">
+    <div className="flex h-full flex-col bg-text-hi transition-colors duration-300 dark:bg-surface-800/90">
       {/* Logo & Theme Toggle */}
       <div className="flex items-center justify-between px-2 py-1">
         <Link to="/dashboard" onClick={onNavigate} className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-base font-bold text-white shadow-md shadow-indigo-500/20">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-accent-500 to-accent-500 text-base font-bold text-text-hi shadow-md shadow-accent-500/20">
             IA
           </span>
-          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-            Ideanalyze <span className="text-indigo-600 dark:text-indigo-400">AI</span>
+          <span className="text-lg font-bold tracking-tight text-surface-800 dark:text-text-hi">
+            Ideanalyze <span className="text-accent-500 dark:text-accent-300">AI</span>
           </span>
         </Link>
         <ThemeToggle />
@@ -74,19 +74,19 @@ export default function Sidebar({ onNavigate }) {
       </nav>
 
       {/* Logged-in user footer */}
-      <div className="mt-auto border-t border-slate-200/80 pt-4 dark:border-slate-800">
+      <div className="mt-auto border-t border-surface-600/80 pt-4 dark:border-surface-700">
         <div className="flex items-center gap-3 px-2">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-sm font-bold text-white shadow-sm">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-accent-500 to-accent-600 text-sm font-bold text-text-hi shadow-sm">
             {user?.name?.charAt(0).toUpperCase() || "?"}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{user?.name || "Builder"}</p>
-            <p className="truncate text-xs text-slate-500 dark:text-slate-400">{user?.email || ""}</p>
+            <p className="truncate text-sm font-semibold text-surface-800 dark:text-surface-700">{user?.name || "Builder"}</p>
+            <p className="truncate text-xs text-text-lo dark:text-text-mid">{user?.email || ""}</p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="mt-3 w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-700 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+          className="mt-3 w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium text-text-mid transition-colors hover:bg-danger-500 hover:text-danger-500 dark:text-text-mid dark:hover:bg-danger-500/40 dark:hover:text-danger-500"
         >
           Log out
         </button>

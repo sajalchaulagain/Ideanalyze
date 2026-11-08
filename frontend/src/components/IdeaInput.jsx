@@ -1,7 +1,7 @@
 import { ideaCategories } from "../data/ideaCategories";
 
 const inputStyles =
-  "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-indigo-900/50";
+  "w-full rounded-xl border border-surface-600 bg-text-hi px-3.5 py-2.5 text-sm text-surface-800 placeholder:text-text-mid focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-surface-600 transition-colors dark:border-surface-600 dark:bg-surface-800 dark:text-surface-700 dark:placeholder:text-text-lo dark:focus:ring-accent-600/50";
 
 export default function IdeaInput({ form, onChange, onSubmit, loading, disabled = false }) {
   const handleField = (event) => {
@@ -13,8 +13,8 @@ export default function IdeaInput({ form, onChange, onSubmit, loading, disabled 
     <form onSubmit={onSubmit} className="space-y-5">
       {/* Title */}
       <div>
-        <label htmlFor="title" className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-          Idea title <span className="text-red-500">*</span>
+        <label htmlFor="title" className="mb-1.5 block text-sm font-semibold text-surface-600 dark:text-surface-600">
+          Idea title <span className="text-danger-500">*</span>
         </label>
         <input
           id="title"
@@ -30,8 +30,8 @@ export default function IdeaInput({ form, onChange, onSubmit, loading, disabled 
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-          Description <span className="text-red-500">*</span>
+        <label htmlFor="description" className="mb-1.5 block text-sm font-semibold text-surface-600 dark:text-surface-600">
+          Description <span className="text-danger-500">*</span>
         </label>
         <textarea
           id="description"
@@ -48,7 +48,7 @@ export default function IdeaInput({ form, onChange, onSubmit, loading, disabled 
       {/* Category + Target Audience */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="category" className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <label htmlFor="category" className="mb-1.5 block text-sm font-semibold text-surface-600 dark:text-surface-600">
             Category
           </label>
           <select
@@ -68,7 +68,7 @@ export default function IdeaInput({ form, onChange, onSubmit, loading, disabled 
         </div>
 
         <div>
-          <label htmlFor="targetAudience" className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <label htmlFor="targetAudience" className="mb-1.5 block text-sm font-semibold text-surface-600 dark:text-surface-600">
             Target audience
           </label>
           <input
@@ -86,7 +86,7 @@ export default function IdeaInput({ form, onChange, onSubmit, loading, disabled 
       <button
         type="submit"
         disabled={loading || disabled}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 text-base font-semibold text-white shadow-md shadow-indigo-500/20 transition-all hover:from-indigo-500 hover:to-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-500 to-accent-600 px-6 py-3 text-base font-semibold text-text-hi shadow-md shadow-accent-500/20 transition-all hover:from-accent-500 hover:to-accent-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? (
           <>
@@ -97,7 +97,7 @@ export default function IdeaInput({ form, onChange, onSubmit, loading, disabled 
             Analyzing with Ideanalyze AI...
           </>
         ) : (
-          "✨ Analyze with AI"
+          "Ã¢Å“Â¨ Analyze with AI"
         )}
       </button>
     </form>

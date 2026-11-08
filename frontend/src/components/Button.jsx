@@ -1,9 +1,9 @@
 const variantStyles = {
-  primary: "bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-500 hover:to-violet-500 focus-visible:ring-indigo-500 shadow-xs",
-  secondary: "bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 focus-visible:ring-slate-500",
-  outline: "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 focus-visible:ring-indigo-500",
-  danger: "bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 focus-visible:ring-red-500",
-  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white",
+  primary: "bg-gradient-to-r from-accent-500 to-accent-600 text-text-hi hover:from-accent-500 hover:to-accent-500 focus-visible:ring-accent-500 shadow-xs",
+  secondary: "bg-surface-800 text-text-hi hover:bg-surface-700 dark:bg-surface-700 dark:hover:bg-surface-600 focus-visible:ring-text-lo",
+  outline: "border border-surface-600 bg-text-hi text-surface-600 hover:bg-surface-800 dark:border-surface-600 dark:bg-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 focus-visible:ring-accent-500",
+  danger: "bg-danger-500 text-text-hi hover:bg-danger-500 dark:bg-danger-500 dark:hover:bg-danger-500 focus-visible:ring-danger-500",
+  ghost: "text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi",
 };
 
 const sizeStyles = {

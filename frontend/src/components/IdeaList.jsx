@@ -2,7 +2,7 @@ import IdeaCard from "./IdeaCard";
 import EmptyState from "./EmptyState";
 
 /*
-  IdeaList — renders the grid of IdeaCard items on the Dashboard.
+  IdeaList Ã¢â‚¬â€ renders the grid of IdeaCard items on the Dashboard.
   Shows appropriate empty states when the user has no ideas or
   when a search/filter returns no results.
 */

@@ -1,8 +1,8 @@
 function Section({ title, children }) {
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900/90">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">{title}</h3>
-      <div className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{children}</div>
+    <section className="rounded-2xl border border-surface-600/80 bg-text-hi p-5 shadow-xs transition-colors duration-300 dark:border-surface-700 dark:bg-surface-800/90">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-accent-500 dark:text-accent-300">{title}</h3>
+      <div className="mt-2 text-sm leading-relaxed text-surface-600 dark:text-surface-600">{children}</div>
     </section>
   );
 }
@@ -10,7 +10,7 @@ function Section({ title, children }) {
 export default function AIAnalysis({ analysis }) {
   if (!analysis) {
     return (
-      <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+      <p className="rounded-2xl border border-dashed border-surface-600 bg-text-hi p-6 text-center text-sm text-text-lo dark:border-surface-700 dark:bg-surface-800 dark:text-text-mid">
         No AI analysis available for this idea yet.
       </p>
     );
@@ -39,7 +39,7 @@ export default function AIAnalysis({ analysis }) {
             {analysis.techStack?.map((tech) => (
               <span
                 key={tech}
-                className="rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-semibold text-white dark:bg-indigo-950 dark:text-indigo-200 dark:border dark:border-indigo-800"
+                className="rounded-lg bg-surface-800 px-2.5 py-1 text-xs font-semibold text-text-hi dark:bg-accent-600 dark:text-accent-300 dark:border dark:border-accent-600"
               >
                 {tech}
               </span>

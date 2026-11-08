@@ -10,7 +10,7 @@ import EmptyState from "../components/EmptyState";
 import AIAnalysisFeedback from "../components/AIAnalysisFeedback";
 
 const inputStyles =
-  "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100";
+  "w-full rounded-xl border border-surface-600 bg-text-hi px-3.5 py-2.5 text-sm text-surface-800 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-surface-600 transition-colors dark:border-surface-600 dark:bg-surface-800 dark:text-surface-700";
 
 export default function IdeaDetails() {
   const { id } = useParams();
@@ -125,7 +125,7 @@ export default function IdeaDetails() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors">
+      <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-text-lo hover:text-accent-500 dark:text-text-mid dark:hover:text-accent-300 transition-colors">
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12l7.5-7.5M3 12h18" />
         </svg>
@@ -133,7 +133,7 @@ export default function IdeaDetails() {
       </Link>
 
       {/* Idea header card */}
-      <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-colors duration-300 sm:p-7 dark:border-slate-800 dark:bg-slate-900/90">
+      <div className="mt-4 rounded-2xl border border-surface-600/80 bg-text-hi p-5 shadow-xs transition-colors duration-300 sm:p-7 dark:border-surface-700 dark:bg-surface-800/90">
         {isEditing ? (
           <div className="space-y-3">
             <input
@@ -157,23 +157,23 @@ export default function IdeaDetails() {
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+              <span className="rounded-full bg-surface-700 px-2.5 py-1 text-xs font-semibold text-accent-500 dark:bg-accent-600 dark:text-accent-300">
                 {idea.category || "General"}
               </span>
               {idea.targetAudience && (
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                <span className="rounded-full bg-surface-700 px-2.5 py-1 text-xs font-medium text-text-mid dark:bg-surface-700 dark:text-surface-600">
                   Target: {idea.targetAudience}
                 </span>
               )}
-              <time className="ml-auto text-xs text-slate-400 dark:text-slate-500">Created {formattedDate}</time>
+              <time className="ml-auto text-xs text-text-mid dark:text-text-lo">Created {formattedDate}</time>
             </div>
-            <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-white">{idea.title}</h1>
-            <p className="mt-2 leading-relaxed text-slate-600 dark:text-slate-300">{idea.description}</p>
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-surface-800 sm:text-3xl dark:text-text-hi">{idea.title}</h1>
+            <p className="mt-2 leading-relaxed text-text-mid dark:text-surface-600">{idea.description}</p>
           </>
         )}
 
         {!isEditing && (
-          <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-5 dark:border-slate-800">
+          <div className="mt-5 flex flex-wrap gap-2 border-t border-surface-700 pt-5 dark:border-surface-700">
             <Button variant="outline" onClick={startEditing}>Edit</Button>
             <Button variant="secondary" onClick={handleAnalyzeAgain} loading={reAnalyzing} disabled={dailyBlocked}>
               {retryCooldown > 0 && aiError?.code === "AI_RATE_LIMITED" ? `Retry in ${retryCooldown}s` : "Analyze Again"}
@@ -189,21 +189,21 @@ export default function IdeaDetails() {
       </div>
 
       {reAnalyzing && (
-        <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <div className="mt-4 rounded-2xl border border-surface-600/80 bg-text-hi p-4 shadow-xs dark:border-surface-700 dark:bg-surface-800">
           <LoadingState message="Re-analyzing your idea with Ideanalyze AI..." />
         </div>
       )}
 
       <div className="mt-6">
-        <h2 className="mb-3 text-xl font-bold text-slate-900 dark:text-white">Ideanalyze AI Breakdown</h2>
+        <h2 className="mb-3 text-xl font-bold text-surface-800 dark:text-text-hi">Ideanalyze AI Breakdown</h2>
         <AIAnalysis analysis={idea.aiAnalysis} />
       </div>
 
       {confirmingDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 dark:border dark:border-slate-800">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Delete this idea?</h3>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-800/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-text-hi p-6 shadow-xl dark:bg-surface-800 dark:border dark:border-surface-700">
+            <h3 className="text-lg font-bold text-surface-800 dark:text-text-hi">Delete this idea?</h3>
+            <p className="mt-1 text-sm text-text-lo dark:text-text-mid">
               &ldquo;{idea.title}&rdquo; and its analysis will be permanently deleted.
             </p>
             <div className="mt-5 flex gap-2">

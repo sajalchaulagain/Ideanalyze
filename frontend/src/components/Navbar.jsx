@@ -7,8 +7,8 @@ import ThemeToggle from "./ThemeToggle";
 const linkStyles = ({ isActive }) =>
   `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
     isActive
-      ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400"
-      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+      ? "bg-surface-700 text-accent-500 dark:bg-accent-600/50 dark:text-accent-300"
+      : "text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi"
   }`;
 
 export default function Navbar() {
@@ -17,28 +17,28 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-md transition-colors duration-300 dark:border-slate-800/80 dark:bg-slate-900/80">
+    <header className="sticky top-0 z-40 border-b border-surface-600/80 bg-text-hi/80 backdrop-blur-md transition-colors duration-300 dark:border-surface-700/80 dark:bg-surface-800/80">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-base font-bold text-white shadow-md shadow-indigo-500/25 transition-transform duration-300 group-hover:scale-105">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-accent-500 to-accent-500 text-base font-bold text-text-hi shadow-md shadow-accent-500/25 transition-transform duration-300 group-hover:scale-105">
             IA
           </span>
-          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-            Ideanalyze <span className="text-indigo-600 dark:text-indigo-400">AI</span>
+          <span className="text-lg font-bold tracking-tight text-surface-800 dark:text-text-hi">
+            Ideanalyze <span className="text-accent-500 dark:text-accent-300">AI</span>
           </span>
         </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden items-center gap-1 md:flex">
           <NavLink to="/" className={linkStyles}>Home</NavLink>
-          <a href="#features" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+          <a href="#features" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi">
             Features
           </a>
-          <a href="#how-it-works" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+          <a href="#how-it-works" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi">
             How It Works
           </a>
-          <a href="#example" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+          <a href="#example" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 hover:text-surface-800 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-text-hi">
             Example
           </a>
         </div>
@@ -61,7 +61,7 @@ export default function Navbar() {
           <ThemeToggle />
           <button
             onClick={() => setMenuOpen((open) => !open)}
-            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="rounded-lg p-2 text-text-mid hover:bg-surface-700 dark:text-surface-600 dark:hover:bg-surface-700"
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
           >
@@ -78,16 +78,16 @@ export default function Navbar() {
 
       {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className="border-t border-slate-200 bg-white px-4 pb-4 pt-2 md:hidden dark:border-slate-800 dark:bg-slate-900">
+        <div className="border-t border-surface-600 bg-text-hi px-4 pb-4 pt-2 md:hidden dark:border-surface-700 dark:bg-surface-800">
           <div className="flex flex-col gap-1">
             <NavLink to="/" className={linkStyles} onClick={() => setMenuOpen(false)}>Home</NavLink>
-            <a href="#features" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setMenuOpen(false)}>
+            <a href="#features" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 dark:text-surface-600 dark:hover:bg-surface-700" onClick={() => setMenuOpen(false)}>
               Features
             </a>
-            <a href="#how-it-works" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setMenuOpen(false)}>
+            <a href="#how-it-works" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 dark:text-surface-600 dark:hover:bg-surface-700" onClick={() => setMenuOpen(false)}>
               How It Works
             </a>
-            <a href="#example" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setMenuOpen(false)}>
+            <a href="#example" className="rounded-lg px-3 py-2 text-sm font-medium text-text-mid hover:bg-surface-700 dark:text-surface-600 dark:hover:bg-surface-700" onClick={() => setMenuOpen(false)}>
               Example
             </a>
           </div>

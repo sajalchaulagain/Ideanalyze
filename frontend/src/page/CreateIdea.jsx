@@ -109,19 +109,19 @@ export default function CreateIdea() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-white">Create a new idea</h1>
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      <h1 className="text-2xl font-bold tracking-tight text-surface-800 sm:text-3xl dark:text-text-hi">Create a new idea</h1>
+      <p className="mt-1 text-sm text-text-lo dark:text-text-mid">
         Describe your idea below and get a structured AI breakdown in seconds.
       </p>
 
-      <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-colors duration-300 sm:p-7 dark:border-slate-800 dark:bg-slate-900/90">
+      <div className="mt-6 rounded-2xl border border-surface-600/80 bg-text-hi p-5 shadow-xs transition-colors duration-300 sm:p-7 dark:border-surface-700 dark:bg-surface-800/90">
         <AIAnalysisFeedback error={aiError} remaining={aiStatus?.remaining} onRetry={handleAnalyze} retryCooldown={retryCooldown} />
         <IdeaInput form={form} onChange={setForm} onSubmit={handleAnalyze} loading={analyzing} disabled={dailyBlocked} />
         {error && !analysis && <div className="mt-4"><ErrorState message={error} /></div>}
       </div>
 
       {analyzing && (
-        <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <div className="mt-6 rounded-2xl border border-surface-600/80 bg-text-hi p-4 shadow-xs dark:border-surface-700 dark:bg-surface-800">
           <LoadingState message="Ideanalyze AI is structuring problem, solution, features & tech stack..." />
         </div>
       )}
@@ -129,7 +129,7 @@ export default function CreateIdea() {
       {!analyzing && analysis && (
         <div className="mt-8">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Ideanalyze AI Result</h2>
+            <h2 className="text-xl font-bold text-surface-800 dark:text-text-hi">Ideanalyze AI Result</h2>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={handleReset}>Start over</Button>
               <Button variant="secondary" onClick={handleAnalyze}>Analyze again</Button>

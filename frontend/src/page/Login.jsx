@@ -5,7 +5,7 @@ import Button from "../components/Button";
 import ErrorState from "../components/ErrorState";
 
 const inputStyles =
-  "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
+  "w-full rounded-xl border border-surface-600 bg-text-hi px-3.5 py-2.5 text-sm text-surface-800 placeholder:text-text-mid focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-surface-600 transition-colors dark:border-surface-600 dark:bg-surface-800 dark:text-surface-700 dark:placeholder:text-text-lo";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -41,14 +41,14 @@ export default function Login() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Welcome back</h1>
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Log in to continue analyzing your ideas with Ideanalyze AI.</p>
+      <h1 className="text-2xl font-bold tracking-tight text-surface-800 dark:text-text-hi">Welcome back</h1>
+      <p className="mt-1 text-sm text-text-lo dark:text-text-mid">Log in to continue analyzing your ideas with Ideanalyze AI.</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <ErrorState message={error} />
 
         <div>
-          <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Email</label>
+          <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-surface-600 dark:text-surface-600">Email</label>
           <input
             id="email"
             name="email"
@@ -63,7 +63,7 @@ export default function Login() {
 
         <div>
           <div className="mb-1.5 flex items-center justify-between">
-            <label htmlFor="password" className="mb-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
+            <label htmlFor="password" className="mb-1.5 text-sm font-semibold text-surface-600 dark:text-surface-600">Password</label>
           </div>
           <input
             id="password"
@@ -72,7 +72,7 @@ export default function Login() {
             autoComplete="current-password"
             value={form.password}
             onChange={handleChange}
-            placeholder="••••••••"
+            placeholder="Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢"
             className={inputStyles}
           />
         </div>
@@ -82,9 +82,9 @@ export default function Login() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-6 text-center text-sm text-text-lo dark:text-text-mid">
         Don&apos;t have an account?{" "}
-        <Link to="/signup" className="font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">
+        <Link to="/signup" className="font-semibold text-accent-500 hover:text-accent-500 dark:text-accent-300">
           Sign up
         </Link>
       </p>
