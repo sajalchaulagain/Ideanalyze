@@ -1,5 +1,7 @@
 # Deployment
 
+Deploy: Netlify frontend, Render API, and Supabase database.
+
 ## 1. Supabase
 
 Apply the migrations in `supabase/migrations/` to the project. Confirm the
