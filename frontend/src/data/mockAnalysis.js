@@ -1,4 +1,3 @@
-// Landing-page sample content only; dashboard ideas always come from the API.
 export const mockAnalysis = {
   problem: "Waste collection teams lose time on fixed routes and delayed reports.",
   solution: "A dashboard predicts fill levels and suggests efficient collection routes.",

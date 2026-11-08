@@ -12,7 +12,6 @@ export default function ThemeToggle({ className = "" }) {
       aria-label="Toggle theme"
     >
       {theme === "dark" ? (
-        // Sun Icon
         <svg
           className="h-5 w-5 transform transition-transform duration-300 rotate-0 hover:rotate-45"
           fill="none"
@@ -27,7 +26,6 @@ export default function ThemeToggle({ className = "" }) {
           />
         </svg>
       ) : (
-        // Moon Icon
         <svg
           className="h-5 w-5 transform transition-transform duration-300 -rotate-12 hover:rotate-0"
           fill="none"

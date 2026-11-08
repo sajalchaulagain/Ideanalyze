@@ -7,7 +7,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Restore user session on mount if JWT token exists in localStorage
   useEffect(() => {
     async function restoreSession() {
       const token = localStorage.getItem("token");
