@@ -34,6 +34,14 @@ function getErrorMessage(error, defaultMsg) {
   return error.message || defaultMsg;
 }
 
+function toApiError(error, defaultMsg) {
+  const wrapped = new Error(getErrorMessage(error, defaultMsg), { cause: error });
+  wrapped.code = error.response?.data?.code;
+  wrapped.resetsAt = error.response?.data?.resetsAt;
+  wrapped.status = error.response?.status;
+  return wrapped;
+}
+
 // ===========================================================================
 // AUTH
 // ===========================================================================
@@ -126,6 +134,15 @@ export async function analyzeIdeaWithAI({ title, description, category, targetAu
     });
     return res.data?.data?.analysis;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "AI analysis failed"), { cause: error });
+    throw toApiError(error, "AI analysis failed");
+  }
+}
+
+export async function getAIStatus() {
+  try {
+    const res = await api.get("/ai/status");
+    return res.data;
+  } catch {
+    return null;
   }
 }

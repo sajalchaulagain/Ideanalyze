@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useIdeas } from "../context/IdeasContext";
-import { analyzeIdeaWithAI } from "../service/api";
+import { analyzeIdeaWithAI, getAIStatus } from "../service/api";
 import AIAnalysis from "../components/AIAnalysis";
 import Button from "../components/Button";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
+import AIAnalysisFeedback from "../components/AIAnalysisFeedback";
 
 const inputStyles =
   "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100";
@@ -23,6 +24,37 @@ export default function IdeaDetails() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [reAnalyzing, setReAnalyzing] = useState(false);
   const [error, setError] = useState("");
+  const [aiError, setAIError] = useState(null);
+  const [aiStatus, setAIStatus] = useState(null);
+  const [retryCooldown, setRetryCooldown] = useState(0);
+  const [dailyResetAt, setDailyResetAt] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    getAIStatus().then((status) => {
+      if (active) setAIStatus(status);
+    });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!retryCooldown) return undefined;
+    const timer = window.setInterval(() => setRetryCooldown((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [retryCooldown]);
+
+  useEffect(() => {
+    if (!dailyResetAt) return undefined;
+    const timer = window.setInterval(() => {
+      if (Date.now() >= new Date(dailyResetAt).getTime()) {
+        setDailyResetAt(null);
+        setAIError(null);
+      }
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [dailyResetAt]);
+
+  const dailyBlocked = Boolean(dailyResetAt);
 
   if (!idea) {
     return (
@@ -70,7 +102,9 @@ export default function IdeaDetails() {
   };
 
   const handleAnalyzeAgain = async () => {
+    if (dailyBlocked) return;
     setError("");
+    setAIError(null);
     setReAnalyzing(true);
     try {
       const freshAnalysis = await analyzeIdeaWithAI({
@@ -80,8 +114,10 @@ export default function IdeaDetails() {
         targetAudience: idea.targetAudience,
       });
       await editIdea(id, { aiAnalysis: freshAnalysis });
-    } catch {
-      setError("Re-analysis failed. Please try again.");
+    } catch (err) {
+      setAIError(err);
+      if (err.code === "AI_RATE_LIMITED") setRetryCooldown(60);
+      if (err.code === "AI_DAILY_LIMIT") setDailyResetAt(err.resetsAt || null);
     } finally {
       setReAnalyzing(false);
     }
@@ -139,8 +175,8 @@ export default function IdeaDetails() {
         {!isEditing && (
           <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-5 dark:border-slate-800">
             <Button variant="outline" onClick={startEditing}>Edit</Button>
-            <Button variant="secondary" onClick={handleAnalyzeAgain} loading={reAnalyzing}>
-              Analyze Again
+            <Button variant="secondary" onClick={handleAnalyzeAgain} loading={reAnalyzing} disabled={dailyBlocked}>
+              {retryCooldown > 0 && aiError?.code === "AI_RATE_LIMITED" ? `Retry in ${retryCooldown}s` : "Analyze Again"}
             </Button>
             <Button variant="danger" onClick={() => setConfirmingDelete(true)}>Delete</Button>
           </div>
@@ -148,6 +184,9 @@ export default function IdeaDetails() {
       </div>
 
       {error && <div className="mt-4"><ErrorState message={error} /></div>}
+      <div className="mt-4">
+        <AIAnalysisFeedback error={aiError} remaining={aiStatus?.remaining} onRetry={handleAnalyzeAgain} retryCooldown={retryCooldown} />
+      </div>
 
       {reAnalyzing && (
         <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">

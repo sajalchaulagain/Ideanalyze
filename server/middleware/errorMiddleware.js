@@ -1,6 +1,6 @@
 const { AppError } = require("../utils/AppError");
 
-function envelope(code, message, field = null, debug, providerStatus, hint) {
+function envelope(code, message, field = null, debug, providerStatus, hint, resetsAt) {
   return {
     success: false,
     code,
@@ -9,6 +9,7 @@ function envelope(code, message, field = null, debug, providerStatus, hint) {
     ...(debug ? { debug } : {}),
     ...(Number.isInteger(providerStatus) ? { providerStatus } : {}),
     ...(hint ? { hint } : {}),
+    ...(resetsAt ? { resetsAt } : {}),
   };
 }
 
@@ -24,7 +25,8 @@ function errorHandler(err, req, res, next) {
         err.field,
         undefined,
         process.env.NODE_ENV !== "production" ? err.providerStatus : undefined,
-        process.env.NODE_ENV === "production" ? err.hint : undefined
+        process.env.NODE_ENV === "production" ? err.hint : undefined,
+        err.resetsAt
       )
     );
   }

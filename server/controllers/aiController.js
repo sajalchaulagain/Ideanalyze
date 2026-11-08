@@ -1,4 +1,4 @@
-const { analyzeIdea } = require("../services/aiService");
+const { analyzeIdea, getAIStatus } = require("../services/aiService");
 
 /*
   POST /api/ai/analyze  (protected)
@@ -38,4 +38,9 @@ async function analyze(req, res, next) {
   }
 }
 
-module.exports = { analyze };
+async function status(req, res) {
+  void req;
+  return res.json(await getAIStatus());
+}
+
+module.exports = { analyze, status };

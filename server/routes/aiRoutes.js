@@ -1,6 +1,6 @@
 const express = require("express");
 const rateLimit = require("express-rate-limit");
-const { analyze } = require("../controllers/aiController");
+const { analyze, status } = require("../controllers/aiController");
 const { protect } = require("../middleware/authMiddleware");
 const { validate } = require("../middleware/validate");
 const { userOrIpKey } = require("../utils/rateLimitKeys");
@@ -15,6 +15,7 @@ const aiLimiter = rateLimit({
   keyGenerator: userOrIpKey,
 });
 
-router.post("/analyze", protect, aiLimiter, validate(analyzeSchema), analyze); // POST /api/ai/analyze
+router.get("/status", protect, status);
+router.post("/analyze", protect, validate(analyzeSchema), aiLimiter, analyze); // POST /api/ai/analyze
 
 module.exports = router;

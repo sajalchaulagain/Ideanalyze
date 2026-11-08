@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIdeas } from "../context/IdeasContext";
-import { analyzeIdeaWithAI } from "../service/api";
+import { analyzeIdeaWithAI, getAIStatus } from "../service/api";
 import IdeaInput from "../components/IdeaInput";
 import AIAnalysis from "../components/AIAnalysis";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import Button from "../components/Button";
+import AIAnalysisFeedback from "../components/AIAnalysisFeedback";
 
 const emptyForm = { title: "", description: "", category: "", targetAudience: "" };
 
@@ -18,12 +19,45 @@ export default function CreateIdea() {
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState("");
+  const [aiError, setAIError] = useState(null);
+  const [aiStatus, setAIStatus] = useState(null);
+  const [retryCooldown, setRetryCooldown] = useState(0);
+  const [dailyResetAt, setDailyResetAt] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    getAIStatus().then((status) => {
+      if (active) setAIStatus(status);
+    });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!retryCooldown) return undefined;
+    const timer = window.setInterval(() => setRetryCooldown((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [retryCooldown]);
+
+  useEffect(() => {
+    if (!dailyResetAt) return undefined;
+    const timer = window.setInterval(() => {
+      if (Date.now() >= new Date(dailyResetAt).getTime()) {
+        setDailyResetAt(null);
+        setAIError(null);
+      }
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [dailyResetAt]);
+
+  const dailyBlocked = Boolean(dailyResetAt);
 
   const handleAnalyze = async (event) => {
     event?.preventDefault?.();
     setError("");
+    setAIError(null);
 
-    if (!form.title.trim() || !form.description.trim()) {
+    if (dailyBlocked || !form.title.trim() || !form.description.trim()) {
+      if (dailyBlocked) return;
       setError("Please give your idea a title and a short description first.");
       return;
     }
@@ -38,7 +72,9 @@ export default function CreateIdea() {
       });
       setAnalysis(result);
     } catch (err) {
-      setError(err.message || "Analysis failed. Please check your connection and try again.");
+      setAIError(err);
+      if (err.code === "AI_RATE_LIMITED") setRetryCooldown(60);
+      if (err.code === "AI_DAILY_LIMIT") setDailyResetAt(err.resetsAt || null);
     } finally {
       setAnalyzing(false);
     }
@@ -66,6 +102,9 @@ export default function CreateIdea() {
     setForm(emptyForm);
     setAnalysis(null);
     setError("");
+    setAIError(null);
+    setDailyResetAt(null);
+    setRetryCooldown(0);
   };
 
   return (
@@ -76,7 +115,8 @@ export default function CreateIdea() {
       </p>
 
       <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-colors duration-300 sm:p-7 dark:border-slate-800 dark:bg-slate-900/90">
-        <IdeaInput form={form} onChange={setForm} onSubmit={handleAnalyze} loading={analyzing} />
+        <AIAnalysisFeedback error={aiError} remaining={aiStatus?.remaining} onRetry={handleAnalyze} retryCooldown={retryCooldown} />
+        <IdeaInput form={form} onChange={setForm} onSubmit={handleAnalyze} loading={analyzing} disabled={dailyBlocked} />
         {error && !analysis && <div className="mt-4"><ErrorState message={error} /></div>}
       </div>
 
