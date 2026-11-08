@@ -51,12 +51,35 @@ function assertProductionJwtSecret() {
   }
 }
 
-function configuredAIProvider() {
-  if ((process.env.AI_BASE_URL || "").trim()) return "OpenAI-compatible";
-  if (/^AIza[0-9A-Za-z_-]+$/.test((process.env.AI_API_KEY || "").trim())) {
-    return "Google Gemini";
+function effectiveAIConfiguration() {
+  const apiKey = (process.env.AI_API_KEY || "").trim();
+  const configuredBaseUrl = (process.env.AI_BASE_URL || "").trim();
+  let baseUrl = configuredBaseUrl;
+  let model = (process.env.AI_MODEL || "").trim();
+
+  if (model.startsWith("http://") || model.startsWith("https://")) {
+    baseUrl = model;
+    model = (process.env.AI_MODEL_NAME || "gpt-3.5-turbo").trim();
   }
-  return "not configured";
+  if (!model) model = "gemini-flash-lite-latest";
+
+  let safeBaseUrl = "";
+  if (baseUrl) {
+    try {
+      const parsed = new URL(baseUrl);
+      safeBaseUrl = `${parsed.origin}${parsed.pathname}`.replace(/\/+$/, "");
+    } catch {
+      safeBaseUrl = "configured endpoint";
+    }
+  }
+
+  const provider = baseUrl
+    ? "openai-compatible"
+    : /^AIza[0-9A-Za-z_-]+$/.test(apiKey)
+    ? "gemini"
+    : "not configured";
+  const keySummary = apiKey ? `set (last 4: ${apiKey.slice(-4)})` : "not set";
+  return { provider, baseUrl: safeBaseUrl, model, keySummary, configuredBaseUrl, configuredModel: (process.env.AI_MODEL || "").trim() };
 }
 
 const app = express();
@@ -142,7 +165,25 @@ const PORT = process.env.PORT || 5000;
 
 async function startServer() {
   assertProductionJwtSecret();
-  console.log(colors.cyan(`AI provider: ${configuredAIProvider()}`));
+  const aiConfiguration = effectiveAIConfiguration();
+  if (aiConfiguration.provider === "openai-compatible") {
+    console.log(
+      colors.cyan(
+        `AI provider: openai-compatible → ${aiConfiguration.baseUrl} (model: ${aiConfiguration.model}; key: ${aiConfiguration.keySummary})`
+      )
+    );
+    if (!aiConfiguration.configuredModel || !aiConfiguration.configuredModel.includes("/")) {
+      console.warn(
+        colors.yellow(
+          "WARNING: AI_MODEL has no vendor prefix; OpenAI-compatible providers usually need e.g. 'google/gemma-4-31b-it:free'."
+        )
+      );
+    }
+  } else if (aiConfiguration.provider === "gemini") {
+    console.log(colors.cyan(`AI provider: gemini (model: ${aiConfiguration.model}; key: ${aiConfiguration.keySummary})`));
+  } else {
+    console.log(colors.cyan(`AI provider: not configured (model: ${aiConfiguration.model}; key: ${aiConfiguration.keySummary})`));
+  }
   const dbProvider = (process.env.DB_PROVIDER || "supabase").trim().toLowerCase();
   if (dbProvider === "mongo") {
     console.log(colors.yellow("MongoDB support was removed; continuing with Supabase."));
