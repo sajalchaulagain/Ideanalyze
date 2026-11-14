@@ -18,6 +18,7 @@ import AdminOverview from "./page/admin/AdminOverview";
 import AdminUsers from "./page/admin/AdminUsers";
 import AdminIdeas from "./page/admin/AdminIdeas";
 import AdminAudit from "./page/admin/AdminAudit";
+import AdminAccount from "./page/admin/AdminAccount";
 
 
 export default function App() {
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="ideas" element={<AdminIdeas />} />
           <Route path="audit" element={<AdminAudit />} />
+          <Route path="account" element={<AdminAccount />} />
         </Route>
       </Route>
 
