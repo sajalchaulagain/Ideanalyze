@@ -1,5 +1,6 @@
 const { getSupabase, unwrap } = require("../supabase");
 const { AppError } = require("../../utils/AppError");
+const { escapeLikeTerm } = require("../../utils/postgrest");
 const { toIdea, fromIdeaInput, fromIdeaPatch } = require("../mappers");
 
 const IDEA_COLUMNS = "id, user_id, title, description, category, target_audience, ai_analysis, created_at, updated_at";
@@ -75,6 +76,89 @@ async function deleteByIdAndUser(id, userId) {
   return toIdea(unwrapIdea(result));
 }
 
+/* --------------------------------------------------------------------------
+   Admin queries. They are not scoped to the caller by design; the route layer
+   has already enforced protect + requireAdmin.
+   -------------------------------------------------------------------------- */
+
+async function listForAdmin({ page, limit, search, userId }) {
+  const offset = (page - 1) * limit;
+  let query = getIdeasRepositoryClient()
+    .from("ideas")
+    .select(IDEA_COLUMNS, { count: "exact" })
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (search) {
+    query = query.ilike("title", `%${escapeLikeTerm(search)}%`);
+  }
+  if (userId) {
+    query = query.eq("user_id", userId);
+  }
+
+  const result = await query;
+  const rows = unwrapIdea(result) || [];
+  const total = Number.isInteger(result.count) ? result.count : rows.length;
+  return { ideas: rows.map(toIdea), total };
+}
+
+async function findById(id) {
+  assertIdeaId(id);
+  const result = await getIdeasRepositoryClient()
+    .from("ideas")
+    .select(IDEA_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+  return toIdea(unwrapIdea(result));
+}
+
+async function deleteById(id) {
+  assertIdeaId(id);
+  const result = await getIdeasRepositoryClient()
+    .from("ideas")
+    .delete()
+    .eq("id", id)
+    .select(IDEA_COLUMNS)
+    .maybeSingle();
+  return toIdea(unwrapIdea(result));
+}
+
+async function countAll() {
+  const result = await getIdeasRepositoryClient()
+    .from("ideas")
+    .select("id", { count: "exact", head: true });
+  unwrap(result);
+  return result.count || 0;
+}
+
+async function countWithAnalysis() {
+  const result = await getIdeasRepositoryClient()
+    .from("ideas")
+    .select("id", { count: "exact", head: true })
+    .neq("ai_analysis", "{}");
+  unwrap(result);
+  return result.count || 0;
+}
+
+async function countByUser(userId) {
+  const result = await getIdeasRepositoryClient()
+    .from("ideas")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+  unwrap(result);
+  return result.count || 0;
+}
+
+async function deleteByUser(userId) {
+  const result = await getIdeasRepositoryClient()
+    .from("ideas")
+    .delete()
+    .eq("user_id", userId)
+    .select("id");
+  return (unwrap(result) || []).length;
+}
+
 module.exports = {
   getIdeasRepositoryClient,
   createForUser,
@@ -82,4 +166,11 @@ module.exports = {
   findByIdAndUser,
   updateByIdAndUser,
   deleteByIdAndUser,
+  listForAdmin,
+  findById,
+  deleteById,
+  countAll,
+  countWithAnalysis,
+  countByUser,
+  deleteByUser,
 };

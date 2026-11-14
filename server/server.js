@@ -10,6 +10,7 @@ const { checkDbHealth } = require("./db/health");
 const authRoutes = require("./routes/authRoutes");
 const ideaRoutes = require("./routes/ideaRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
 const colors = {
@@ -150,6 +151,7 @@ app.get("/api/health", async (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/ideas", ideaRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Unknown API routes must not fall through to HTML or a hanging handler.
 app.use("/api", (req, res) => {

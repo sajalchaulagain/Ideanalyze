@@ -86,6 +86,12 @@ const analyzeSchema = z.object({
   targetAudience: z.string().trim().optional(),
 });
 
+const updateUserRoleSchema = z.object({
+  role: z.enum(["user", "admin"], {
+    message: "Role must be either user or admin.",
+  }),
+});
+
 module.exports = {
   CATEGORIES,
   signupSchema,
@@ -95,4 +101,5 @@ module.exports = {
   createIdeaSchema,
   updateIdeaSchema,
   analyzeSchema,
+  updateUserRoleSchema,
 };

@@ -1,5 +1,6 @@
 const { getSupabase, unwrap } = require("../supabase");
 const { AppError } = require("../../utils/AppError");
+const { ilikeAny } = require("../../utils/postgrest");
 const { toUser, toPublicUser } = require("../mappers");
 
 const USER_COLUMNS =
@@ -27,14 +28,6 @@ function unwrapUser(result) {
     throw new AppError("INVALID_ID", 400, "Invalid user id");
   }
   return unwrap(result);
-}
-
-// PostgREST parses this string as a filter expression, so LIKE wildcards and
-// reserved characters inside the search term must be escaped or quoted.
-function escapeSearchTerm(value) {
-  return String(value || "")
-    .replace(/[\\%_]/g, (character) => `\\${character}`)
-    .replace(/"/g, '\\"');
 }
 
 async function create({ name, email, passwordHash }) {
@@ -149,10 +142,7 @@ async function listForAdmin({ page, limit, search }) {
     .range(offset, offset + limit - 1);
 
   if (search) {
-    const pattern = `%${escapeSearchTerm(search)}%`;
-    query = query.or(
-      `email.ilike."${pattern}",name.ilike."${pattern}"`
-    );
+    query = query.or(ilikeAny(["email", "name"], search));
   }
 
   const result = await query;
