@@ -16,6 +16,8 @@ function publicUser(user) {
     id: user._id,
     name: user.name,
     email: user.email,
+    // Not a secret. Used by the admin guard and navigation.
+    role: user.role || "user",
     createdAt: user.createdAt,
   };
 }
@@ -46,6 +48,12 @@ async function login(req, res, next) {
     }
 
     const token = createToken(user._id);
+
+    // Best-effort timestamp: never block or fail a login because of it.
+    users.updateLastLogin(user._id).catch((error) => {
+      console.error(`last_login_at update failed for user ${user._id}: ${error.message}`);
+    });
+
     return res.json({
       success: true,
       message: "Logged in successfully",
