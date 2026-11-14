@@ -120,6 +120,18 @@ export async function updateProfile(payload) {
   }
 }
 
+export async function changePassword({ currentPassword, newPassword }) {
+  try {
+    const response = await api.patch("/auth/password", {
+      currentPassword,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    throw toApiError(error, "Could not change your password.");
+  }
+}
+
 // ===========================================================================
 // IDEAS (CRUD)
 // ===========================================================================
@@ -199,6 +211,82 @@ export async function getAIStatus() {
   } catch {
     // AI status is supplemental; a failure must not block the main workflow.
     return null;
+  }
+}
+
+// ===========================================================================
+// ADMIN
+// ===========================================================================
+
+export async function fetchAdminStats() {
+  try {
+    const response = await api.get("/admin/stats");
+    return response.data?.data;
+  } catch (error) {
+    throw toApiError(error, "Could not load the admin overview.");
+  }
+}
+
+export async function fetchAdminUsers({ page = 1, limit = 20, search = "" } = {}) {
+  try {
+    const response = await api.get("/admin/users", {
+      params: { page, limit, search: search || undefined },
+    });
+    return response.data?.data;
+  } catch (error) {
+    throw toApiError(error, "Could not load users.");
+  }
+}
+
+export async function updateAdminUserRole(id, role) {
+  try {
+    const response = await api.patch(`/admin/users/${id}/role`, { role });
+    return response.data?.data?.user;
+  } catch (error) {
+    throw toApiError(error, "Could not change that user's role.");
+  }
+}
+
+export async function deleteAdminUser(id) {
+  try {
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+  } catch (error) {
+    throw toApiError(error, "Could not delete that user.");
+  }
+}
+
+export async function fetchAdminIdeas({ page = 1, limit = 20, search = "", userId = "" } = {}) {
+  try {
+    const response = await api.get("/admin/ideas", {
+      params: {
+        page,
+        limit,
+        search: search || undefined,
+        userId: userId || undefined,
+      },
+    });
+    return response.data?.data;
+  } catch (error) {
+    throw toApiError(error, "Could not load ideas.");
+  }
+}
+
+export async function deleteAdminIdea(id) {
+  try {
+    const response = await api.delete(`/admin/ideas/${id}`);
+    return response.data;
+  } catch (error) {
+    throw toApiError(error, "Could not delete that idea.");
+  }
+}
+
+export async function fetchAdminAudit({ page = 1, limit = 50 } = {}) {
+  try {
+    const response = await api.get("/admin/audit", { params: { page, limit } });
+    return response.data?.data;
+  } catch (error) {
+    throw toApiError(error, "Could not load the audit log.");
   }
 }
 

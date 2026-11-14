@@ -14,6 +14,10 @@ import CreateIdea from "./page/CreateIdea";
 import IdeaDetails from "./page/IdeaDetails";
 import Profile from "./page/Profile";
 import AdminLayout from "./layout/AdminLayout";
+import AdminOverview from "./page/admin/AdminOverview";
+import AdminUsers from "./page/admin/AdminUsers";
+import AdminIdeas from "./page/admin/AdminIdeas";
+import AdminAudit from "./page/admin/AdminAudit";
 
 
 export default function App() {
@@ -45,7 +49,12 @@ export default function App() {
               <AdminLayout />
             </AdminRoute>
           }
-        />
+        >
+          <Route index element={<AdminOverview />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="ideas" element={<AdminIdeas />} />
+          <Route path="audit" element={<AdminAudit />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
