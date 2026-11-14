@@ -31,6 +31,15 @@ function clearToken() {
   }
 }
 
+/*
+  Sessions created before roles existed have no role in localStorage. /auth/me
+  now returns it, and this fallback keeps every consumer from seeing undefined.
+*/
+function withRole(user) {
+  if (!user) return user;
+  return { ...user, role: user.role || "user" };
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -52,7 +61,7 @@ export function AuthProvider({ children }) {
     try {
       const currentUser = await getMe();
       if (currentUser) {
-        setUser(currentUser);
+        setUser(withRole(currentUser));
         setAuthError("");
       } else {
         clearToken();
@@ -102,7 +111,7 @@ export function AuthProvider({ children }) {
     setAuthError("");
     try {
       const data = await loginUser({ email, password });
-      setUser(data.user);
+      setUser(withRole(data.user));
       setHasSession(true);
       return data.user;
     } finally {
@@ -115,7 +124,7 @@ export function AuthProvider({ children }) {
     setAuthError("");
     try {
       const data = await signupUser({ name, email, password });
-      setUser(data.user);
+      setUser(withRole(data.user));
       setHasSession(true);
       return data.user;
     } finally {
@@ -132,7 +141,7 @@ export function AuthProvider({ children }) {
 
   const updateProfile = async (updates) => {
     const updatedUser = await updateProfileRequest(updates);
-    setUser(updatedUser);
+    setUser(withRole(updatedUser));
     return updatedUser;
   };
 

@@ -1,5 +1,14 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, LogOut, PlusCircle, UserRound } from "lucide-react";
+import {
+  Gauge,
+  LayoutDashboard,
+  Lightbulb,
+  LogOut,
+  PlusCircle,
+  ScrollText,
+  UserRound,
+  UsersRound,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import ThemeToggle from "./ThemeToggle";
 import Logo from "./Logo";
@@ -8,6 +17,13 @@ const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/create", label: "Create idea", icon: PlusCircle },
   { to: "/profile", label: "Profile", icon: UserRound },
+];
+
+const adminNavItems = [
+  { to: "/admin", label: "Overview", icon: Gauge, end: true },
+  { to: "/admin/users", label: "Users", icon: UsersRound },
+  { to: "/admin/ideas", label: "Ideas", icon: Lightbulb },
+  { to: "/admin/audit", label: "Audit log", icon: ScrollText },
 ];
 
 const linkClass = ({ isActive }) =>
@@ -62,6 +78,32 @@ export default function Sidebar({ onNavigate }) {
             </NavLink>
           );
         })}
+
+        {user?.role === "admin" && (
+          <div className="mt-6 border-t border-border pt-5">
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">
+              Admin
+            </p>
+            {adminNavItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  onClick={onNavigate}
+                  className={linkClass}
+                >
+                  <Icon
+                    className="h-[18px] w-[18px] shrink-0"
+                    aria-hidden="true"
+                  />
+                  {item.label}
+                </NavLink>
+              );
+            })}
+          </div>
+        )}
       </nav>
 
       <div className="mt-auto space-y-3 border-t border-border pt-4">
