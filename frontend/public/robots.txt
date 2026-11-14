@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /dashboard
+Disallow: /create
+Disallow: /profile
+Disallow: /idea/
+
+Sitemap: https://ideanalyze.netlify.app/sitemap.xml

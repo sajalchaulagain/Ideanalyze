@@ -11,6 +11,7 @@ import Button from "../components/Button";
 import ErrorState from "../components/ErrorState";
 import FormField from "../components/ui/FormField";
 import { inputClass } from "../components/ui/formStyles";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -18,6 +19,11 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, authLoading, isAuthenticated } = useAuth();
+
+  useDocumentMeta(
+    "Log in · Ideanalyze AI",
+    "Log in to analyse and manage your startup ideas."
+  );
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});

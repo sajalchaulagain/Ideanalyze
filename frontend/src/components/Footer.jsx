@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react";
 import Logo from "./Logo";
 
 export default function Footer() {
@@ -54,10 +53,9 @@ export default function Footer() {
         <div className="mt-8 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-sm text-fg-subtle sm:flex-row sm:items-center">
           <p>© {year} Ideanalyze AI. All rights reserved.</p>
           <p className="flex items-center gap-1.5">
-            <Heart className="h-3.5 w-3.5 text-danger" aria-hidden="true" />
-            Crafted by{" "}
+            Ideanalyze AI <span aria-hidden="true">·</span> built by{" "}
             <a
-              href="https://sajalchaulagain.com.np/"
+              href="https://github.com/sajalchaulagain"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"

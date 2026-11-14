@@ -16,6 +16,7 @@ import Footer from "../components/Footer";
 import Button from "../components/Button";
 import AIAnalysis from "../components/AIAnalysis";
 import { mockAnalysis } from "../data/mockAnalysis";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 const features = [
   {
@@ -59,6 +60,21 @@ const trustPoints = [
   "Private saved workspace",
 ];
 
+const reasons = [
+  {
+    title: "Private by default",
+    text: "Your ideas and analyses stay in your own workspace, visible only to you.",
+  },
+  {
+    title: "Built around your words",
+    text: "Each section refers to what you actually wrote instead of a generic template.",
+  },
+  {
+    title: "Free to start",
+    text: "Create an account and run an analysis without a credit card.",
+  },
+];
+
 function HeroPreview() {
   return (
     <div className="relative mx-auto w-full max-w-md lg:max-w-none">
@@ -77,9 +93,9 @@ function HeroPreview() {
           </span>
         </div>
 
-        <h2 className="mt-4 text-lg font-semibold tracking-tight text-fg">
+        <h3 className="mt-4 text-lg font-semibold tracking-tight text-fg">
           Smart waste collection for Kathmandu
-        </h2>
+        </h3>
         <p className="mt-1.5 text-sm leading-6 text-fg-muted">
           A dashboard that predicts fill levels and suggests efficient
           collection routes.
@@ -126,6 +142,7 @@ function HeroPreview() {
 }
 
 export default function Landing() {
+  useDocumentMeta();
   const { isAuthenticated } = useAuth();
   const primaryTo = isAuthenticated ? "/dashboard" : "/signup";
 
@@ -145,12 +162,12 @@ export default function Landing() {
                 AI-assisted idea analysis
               </p>
               <h1 className="mt-5 max-w-2xl text-4xl font-semibold leading-[1.08] tracking-tight text-fg sm:text-5xl lg:text-6xl">
-                Turn a rough idea into a plan you can test.
+                Turn a rough idea into a structured startup plan.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-fg-muted sm:text-lg">
-                Ideanalyze AI gives founders a sharper view of the problem,
-                customer, product, and next step before they spend a week
-                building.
+                Ideanalyze AI is an AI idea analyzer that turns a rough startup
+                idea into a structured plan: the problem, the customer, the
+                product and the next step, before you spend a week building.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -192,14 +209,16 @@ export default function Landing() {
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
             <div className="max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.1em] text-accent">
-                What you get
+                Features
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight text-fg sm:text-3xl">
-                A useful first pass, not empty hype.
+                What you get
               </h2>
               <p className="mt-3 text-sm leading-6 text-fg-muted sm:text-base">
-                Each analysis is designed to make the next conversation,
-                prototype, or validation step easier to start.
+                A useful first pass, not empty hype. Every business idea
+                breakdown covers the problem, solution, target users, features,
+                tech stack, challenges and next steps, so the next
+                conversation, prototype or validation step is easier to start.
               </p>
             </div>
 
@@ -233,11 +252,16 @@ export default function Landing() {
         >
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-accent">
-              How it works
+              Process
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-fg sm:text-3xl">
-              From a sentence to a structured plan.
+              How it works
             </h2>
+            <p className="mt-3 text-sm leading-6 text-fg-muted sm:text-base">
+              Three steps from a sentence to a plan you can act on. Use the
+              result to validate an idea with a focused next move instead of a
+              vague list of maybes.
+            </p>
           </div>
 
           <ol className="mt-10 grid gap-5 md:grid-cols-3">
@@ -278,16 +302,54 @@ export default function Landing() {
                 Example output
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight text-fg sm:text-3xl">
-                See the shape of a useful analysis.
+                See a sample analysis
               </h2>
               <p className="mt-3 text-sm leading-6 text-fg-muted sm:text-base">
-                This is a sample idea, not real market research. Use it to see
-                how the seven sections fit together.
+                This is a sample startup idea analysis, not real market
+                research. Use it to see how the seven sections fit together.
               </p>
             </div>
             <div className="mt-10">
               <AIAnalysis analysis={mockAnalysis} />
             </div>
+          </div>
+        </section>
+
+        <section
+          id="why"
+          className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20"
+        >
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-accent">
+              Trust
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-fg sm:text-3xl">
+              Why Ideanalyze
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-fg-muted sm:text-base">
+              Every section of the business idea breakdown points back to what
+              you wrote, so you can question your assumptions and validate an
+              idea while it is still cheap to change.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {reasons.map((reason) => (
+              <article
+                key={reason.title}
+                className="rounded-2xl border border-border bg-surface p-6 shadow-card"
+              >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                  <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <h3 className="mt-5 text-base font-semibold text-fg">
+                  {reason.title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-fg-muted">
+                  {reason.text}
+                </p>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -306,8 +368,8 @@ export default function Landing() {
                 Have an idea worth testing?
               </h2>
               <p className="mt-3 text-sm leading-6 text-white/75 sm:text-base">
-                Start with the sentence in your head. We will help you find the
-                shape underneath it.
+                Start with the sentence in your head. The AI idea analyzer will
+                help you find the shape underneath it.
               </p>
               <Link
                 to={isAuthenticated ? "/create" : "/signup"}

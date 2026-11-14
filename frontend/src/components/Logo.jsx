@@ -9,7 +9,7 @@ export default function Logo({
       className={`inline-flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm ${className}`}
       aria-hidden="true"
     >
-      <Sparkles className={iconClassName} strokeWidth={2.2} />
+      <Sparkles className={iconClassName} strokeWidth={2.2} aria-hidden="true" />
     </span>
   );
 }

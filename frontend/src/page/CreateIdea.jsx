@@ -25,6 +25,7 @@ import {
 } from "../components/ui/formStyles";
 import { DEFAULT_CATEGORY, ideaCategories } from "../data/ideaCategories";
 import { useRetryCooldown } from "../hooks/useRetryCooldown";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 import { hasAnalysis, nextUtcMidnightIso } from "../lib/format";
 
 const MIN_DESCRIPTION = 20;
@@ -38,6 +39,11 @@ const emptyForm = {
 
 export default function CreateIdea() {
   const navigate = useNavigate();
+  useDocumentMeta(
+    "Analyse a new idea · Ideanalyze AI",
+    "Describe an idea and get a structured breakdown."
+  );
+
   const { addIdea, saving } = useIdeas();
   const { showToast } = useToast();
   const { retryCooldown, startCooldown, resetCooldown } = useRetryCooldown();

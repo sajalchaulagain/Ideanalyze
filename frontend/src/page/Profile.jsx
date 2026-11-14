@@ -20,12 +20,15 @@ import Card from "../components/ui/Card";
 import FormField from "../components/ui/FormField";
 import { inputClass } from "../components/ui/formStyles";
 import { formatDate, hasAnalysis } from "../lib/format";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, updateProfile, logout } = useAuth();
   const { ideas } = useIdeas();
   const { showToast } = useToast();
+
+  useDocumentMeta("Profile · Ideanalyze AI", "Manage your account details and saved ideas.");
 
   const [isEditing, setIsEditing] = useState(false);
   const [nameDraft, setNameDraft] = useState("");

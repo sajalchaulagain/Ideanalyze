@@ -30,6 +30,13 @@ import {
 import { DEFAULT_CATEGORY, ideaCategories } from "../data/ideaCategories";
 import { useRetryCooldown } from "../hooks/useRetryCooldown";
 import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_TITLE,
+  trimTitle,
+  trimToLength,
+  useDocumentMeta,
+} from "../hooks/useDocumentMeta";
+import {
   formatDate,
   formatRelativeTime,
   hasAnalysis,
@@ -47,6 +54,11 @@ export default function IdeaDetails() {
   const { retryCooldown, startCooldown, resetCooldown } = useRetryCooldown();
 
   const idea = getIdea(id);
+
+  useDocumentMeta(
+    idea ? `${trimTitle(idea.title) || "Idea"} · Ideanalyze AI` : DEFAULT_TITLE,
+    (idea && trimToLength(idea.description)) || DEFAULT_DESCRIPTION
+  );
 
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState({

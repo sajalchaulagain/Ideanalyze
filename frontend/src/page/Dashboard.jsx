@@ -17,12 +17,15 @@ import ErrorState from "../components/ErrorState";
 import { ideaCategories } from "../data/ideaCategories";
 import { inputClass, selectClass } from "../components/ui/formStyles";
 import { hasAnalysis } from "../lib/format";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 const statStyles =
   "rounded-2xl border border-border bg-surface p-4 shadow-card";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  useDocumentMeta("Your ideas · Ideanalyze AI", "All your saved ideas and analyses.");
+
   const {
     ideas,
     loadingIdeas,

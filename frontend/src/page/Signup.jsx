@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import ErrorState from "../components/ErrorState";
 import FormField from "../components/ui/FormField";
 import { inputClass } from "../components/ui/formStyles";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
@@ -65,6 +66,11 @@ function PasswordField({
 export default function Signup() {
   const navigate = useNavigate();
   const { signup, authLoading, isAuthenticated } = useAuth();
+
+  useDocumentMeta(
+    "Create your account · Ideanalyze AI",
+    "Create a free account and turn your first idea into a structured plan."
+  );
 
   const [form, setForm] = useState({
     name: "",
